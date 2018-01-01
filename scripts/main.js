@@ -3,11 +3,17 @@ var roleUpgrader = require('role.upgrader');
 var roleBuilder = require('role.builder');
 
 function getCreepBodyParts(role, maxEnergy) {
+    console.log('maxEnergy:', maxEnergy);
+
+    if (maxEnergy >= 400) {
+        return [WORK, WORK, WORK, CARRY, MOVE];
+    }
+
     return [WORK, WORK, WORK, WORK, WORK, CARRY, MOVE];
     return [WORK, WORK, CARRY, MOVE];
-    
+
     var parts = [WORK,WORK,CARRY,MOVE];
-    
+
     var energyRemaining = maxEnergy - 300;
     while (energyRemaining > 50) {
         parts.push(WORK);
@@ -46,7 +52,7 @@ module.exports.loop = function () {
             roleBuilder.run(creep);
         }
     }
-    
+
     var energyForSpawning = 0;
     energyForSpawning += Game.spawns['Spawn1'].energy;
     var extensions = Game.spawns.Spawn1.room.find(FIND_MY_STRUCTURES, {
@@ -57,11 +63,11 @@ module.exports.loop = function () {
         energyForSpawning += extension.energy;
     }
     // console.log('energyForSpawning:', energyForSpawning);
-    
-    
+
+
     var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
     console.log('Harvesters: ' + harvesters.length);
-    if(harvesters.length < 4) {
+    if(harvesters.length < 10) {
         var newName = 'Harvester' + Game.time;
         console.log('Spawning new harvester: ' + newName);
         var result = Game.spawns['Spawn1'].spawnCreep(getCreepBodyParts('harvester', energyForSpawning), newName,
@@ -92,12 +98,12 @@ module.exports.loop = function () {
     if (Game.spawns['Spawn1'].spawning) {
         var spawningCreep = Game.creeps[Game.spawns['Spawn1'].spawning.name];
         Game.spawns['Spawn1'].room.visual.text(
-            '🛠️' + spawningCreep.memory.role,
+            'ð ï¸' + spawningCreep.memory.role,
             Game.spawns['Spawn1'].pos.x + 1,
             Game.spawns['Spawn1'].pos.y,
             {align: 'left', opacity: 0.8});
      }
-     
+
    for(var name in Memory.creeps) {
         if(!Game.creeps[name]) {
             delete Memory.creeps[name];
