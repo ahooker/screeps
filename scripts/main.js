@@ -7,6 +7,8 @@ function getCreepBodyParts(role, maxEnergy) {
 
     if (maxEnergy >= 400) {
         return [WORK, WORK, WORK, CARRY, MOVE];
+    } else if (maxEnergy >= 300) {
+        return [WORK, WORK, CARRY, MOVE];
     }
 
     return [WORK, WORK, WORK, WORK, WORK, CARRY, MOVE];
@@ -98,7 +100,7 @@ module.exports.loop = function () {
     if (Game.spawns['Spawn1'].spawning) {
         var spawningCreep = Game.creeps[Game.spawns['Spawn1'].spawning.name];
         Game.spawns['Spawn1'].room.visual.text(
-            'ð ï¸' + spawningCreep.memory.role,
+            'Ã°ÂÂÂ Ã¯Â¸Â' + spawningCreep.memory.role,
             Game.spawns['Spawn1'].pos.x + 1,
             Game.spawns['Spawn1'].pos.y,
             {align: 'left', opacity: 0.8});
