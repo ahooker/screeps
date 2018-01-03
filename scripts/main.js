@@ -15,9 +15,9 @@ function getCreepBodyParts(role, maxEnergy) {
     if (maxEnergy < 550) {
         return false;
     } else {
-        var parts = [WORK];
+        var parts = [WORK, WORK];
         
-        maxEnergy -= 100;
+        maxEnergy -= 200;
         while (maxEnergy > 100) {
             parts.push(MOVE);
             parts.push(CARRY);
