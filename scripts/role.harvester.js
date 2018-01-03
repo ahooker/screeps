@@ -3,6 +3,7 @@ var roleHarvester = {
     /** @param {Creep} creep **/
     run: function(creep) {
 	    if(creep.carry.energy < creep.carryCapacity) {
+	        creep.say('Hungry!');
 	        var source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
 	        if (source) {
                 if(creep.harvest(source) == ERR_NOT_IN_RANGE) {
@@ -15,6 +16,7 @@ var roleHarvester = {
             var roomContainers = Game.rooms[creep.room.name].find(FIND_STRUCTURES, { filter: (structure) => { return ((structure.structureType == STRUCTURE_CONTAINER)) } });
             if (roomContainers.length > 0) {
                 targets = roomContainers;
+                creep.say('what?' + targets.length);
             } else {
                 targets = creep.room.find(FIND_STRUCTURES, {
                         filter: (structure) => {

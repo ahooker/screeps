@@ -4,8 +4,24 @@ var roleBuilder = require('role.builder');
 
 function getCreepBodyParts(role, maxEnergy) {
     console.log('maxEnergy:', maxEnergy);
-
-    if (maxEnergy >= 400) {
+    
+    if (maxEnergy < 550) {
+        return false;
+    } else if (maxEnergy <= 550) {
+        if (role == 'upgrader') {
+            return [WORK, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE];
+        } else {
+            return [WORK, WORK, WORK, WORK, WORK, CARRY, MOVE];
+        }
+    } else {
+        if (role == 'upgrader') {
+            return [WORK, CARRY, MOVE, MOVE];
+        } else {
+            return [WORK, WORK, CARRY, MOVE];
+        }
+    }
+    
+    if (maxEnergy >= 500) {
         return [WORK, WORK, WORK, CARRY, MOVE];
     } else if (maxEnergy >= 300) {
         return [WORK, WORK, CARRY, MOVE];
@@ -69,7 +85,7 @@ module.exports.loop = function () {
 
     var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
     console.log('Harvesters: ' + harvesters.length);
-    if(harvesters.length < 10) {
+    if(harvesters.length < 6) {
         var newName = 'Harvester' + Game.time;
         console.log('Spawning new harvester: ' + newName);
         var result = Game.spawns['Spawn1'].spawnCreep(getCreepBodyParts('harvester', energyForSpawning), newName,
@@ -78,7 +94,7 @@ module.exports.loop = function () {
     } else {
         var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
         console.log('Upgraders: ' + upgraders.length);
-        if(upgraders.length < 1 ) {
+        if(upgraders.length < 2 ) {
             var newName = 'Upgrader' + Game.time;
             console.log('Spawning new upgrader: ' + newName);
             var result = Game.spawns['Spawn1'].spawnCreep(getCreepBodyParts('upgrader', energyForSpawning), newName,
@@ -100,7 +116,7 @@ module.exports.loop = function () {
     if (Game.spawns['Spawn1'].spawning) {
         var spawningCreep = Game.creeps[Game.spawns['Spawn1'].spawning.name];
         Game.spawns['Spawn1'].room.visual.text(
-            'Ã°ÂÂÂ Ã¯Â¸Â' + spawningCreep.memory.role,
+            'ÃÂ°ÃÂÃÂÃÂ ÃÂ¯ÃÂ¸ÃÂ' + spawningCreep.memory.role,
             Game.spawns['Spawn1'].pos.x + 1,
             Game.spawns['Spawn1'].pos.y,
             {align: 'left', opacity: 0.8});
