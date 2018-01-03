@@ -5,6 +5,45 @@ var roleBuilder = require('role.builder');
 function getCreepBodyParts(role, maxEnergy) {
     console.log('maxEnergy:', maxEnergy);
     
+    /*
+    console.log('BPC:');
+    for (var i in BODYPART_COST) {
+        console.log(i, ':', BODYPART_COST[i]);
+    }
+    */
+    
+    if (maxEnergy < 550) {
+        return false;
+    } else {
+        var parts = [WORK];
+        
+        maxEnergy -= 100;
+        while (maxEnergy > 100) {
+            parts.push(MOVE);
+            parts.push(CARRY);
+            maxEnergy -= 100;
+        }
+        while (maxEnergy > 50) {
+            parts.push(MOVE);
+            maxEnergy -= 50;
+        }
+        console.log('parts:', parts);
+        return parts;
+        
+        
+        switch (role) {
+            case 'upgrader':
+                break;
+            case 'builder':
+                break;
+            case 'harvester':
+            default:
+                break;
+        }
+        
+        return parts;
+    }
+    
     if (maxEnergy < 550) {
         return false;
     } else if (maxEnergy <= 550) {
@@ -85,7 +124,7 @@ module.exports.loop = function () {
 
     var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
     console.log('Harvesters: ' + harvesters.length);
-    if(harvesters.length < 6) {
+    if(harvesters.length < 4) {
         var newName = 'Harvester' + Game.time;
         console.log('Spawning new harvester: ' + newName);
         var result = Game.spawns['Spawn1'].spawnCreep(getCreepBodyParts('harvester', energyForSpawning), newName,
@@ -103,7 +142,7 @@ module.exports.loop = function () {
         } else {
             var builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
             console.log('Builders: ' + builders.length);
-            if(builders.length < 2) {
+            if(builders.length < 4) {
                 var newName = 'Builder' + Game.time;
                 console.log('Spawning new builder: ' + newName);
                 var result = Game.spawns['Spawn1'].spawnCreep(getCreepBodyParts('builder', energyForSpawning), newName,
@@ -116,7 +155,7 @@ module.exports.loop = function () {
     if (Game.spawns['Spawn1'].spawning) {
         var spawningCreep = Game.creeps[Game.spawns['Spawn1'].spawning.name];
         Game.spawns['Spawn1'].room.visual.text(
-            'ÃÂ°ÃÂÃÂÃÂ ÃÂ¯ÃÂ¸ÃÂ' + spawningCreep.memory.role,
+            'Spawning a ' + spawningCreep.memory.role,
             Game.spawns['Spawn1'].pos.x + 1,
             Game.spawns['Spawn1'].pos.y,
             {align: 'left', opacity: 0.8});
