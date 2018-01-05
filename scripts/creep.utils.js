@@ -41,10 +41,14 @@ var creepUtils = {
                         creep.pos.x + 1,
                         creep.pos.y,
                         {align: 'left', opacity: 0.8});
+                    var targets = [Game.flags['CreepPasture'].pos, Game.flags['CreepPasture2'].pos];
+                    targets = _.sortBy(targets, s => creep.pos.getRangeTo(s));
                     creep.moveTo(Game.flags['CreepPasture'].pos, {visualizePathStyle: {stroke: '#ffffff'}});
                 }
             } else {
                 // Nothing to do so move out of the way for now
+                var targets = [Game.flags['CreepPasture'].pos, Game.flags['CreepPasture2'].pos];
+                targets = _.sortBy(targets, s => creep.pos.getRangeTo(s));
                 creep.moveTo(Game.flags['CreepPasture'].pos, {visualizePathStyle: {stroke: '#ffffff'}});
                 return false;
             }
