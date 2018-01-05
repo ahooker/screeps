@@ -22,7 +22,7 @@ var roleBuilder = {
                 }
             }
         } else {
-	        utils.grabEnergy(creep, {includeContainers: true});
+	        utils.grabEnergy(creep, {includeSources: false, includeContainers: true});
         }
     }
 };

@@ -11,85 +11,53 @@ function getCreepBodyParts(role, maxEnergy) {
         console.log(i, ':', BODYPART_COST[i]);
     }
     */
+
+    var parts = [WORK, WORK];
     
-    if (maxEnergy < 550) {
-        return false;
-    } else {
-        var parts = [WORK, WORK];
-        
-        maxEnergy -= 200;
-        while (maxEnergy > 100) {
-            parts.push(MOVE);
-            parts.push(CARRY);
-            maxEnergy -= 100;
-        }
-        while (maxEnergy > 50) {
-            parts.push(MOVE);
-            maxEnergy -= 50;
-        }
-        console.log('parts:', parts);
-        return parts;
-        
-        
-        switch (role) {
-            case 'upgrader':
-                break;
-            case 'builder':
-                break;
-            case 'harvester':
-            default:
-                break;
-        }
-        
-        return parts;
+    maxEnergy -= 200;
+    while (maxEnergy > 100) {
+        parts.push(MOVE);
+        parts.push(CARRY);
+        maxEnergy -= 100;
+    }
+    while (maxEnergy > 50) {
+        parts.push(MOVE);
+        maxEnergy -= 50;
+    }
+    console.log('parts:', parts);
+    return parts;
+    
+    
+    switch (role) {
+        case 'upgrader':
+            break;
+        case 'builder':
+            break;
+        case 'harvester':
+        default:
+            break;
     }
     
-    if (maxEnergy < 550) {
-        return false;
-    } else if (maxEnergy <= 550) {
-        if (role == 'upgrader') {
-            return [WORK, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE];
-        } else {
-            return [WORK, WORK, WORK, WORK, WORK, CARRY, MOVE];
-        }
-    } else {
-        if (role == 'upgrader') {
-            return [WORK, CARRY, MOVE, MOVE];
-        } else {
-            return [WORK, WORK, CARRY, MOVE];
-        }
-    }
-    
-    if (maxEnergy >= 500) {
-        return [WORK, WORK, WORK, CARRY, MOVE];
-    } else if (maxEnergy >= 300) {
-        return [WORK, WORK, CARRY, MOVE];
-    }
-
-    return [WORK, WORK, WORK, WORK, WORK, CARRY, MOVE];
-    return [WORK, WORK, CARRY, MOVE];
-
-    var parts = [WORK,WORK,CARRY,MOVE];
-
-    var energyRemaining = maxEnergy - 300;
-    while (energyRemaining > 50) {
-        parts.push(WORK);
-        energyRemaining -= 50;
-    }
-    console.log('Parts:', parts);
-
     return parts;
 }
 
 module.exports.loop = function () {
-    var tower = Game.getObjectById('f0179790bd8282e033d0d8b2');
+    var tower = Game.getObjectById('5a4e7787e2555e0bfc83e762');
     if(tower) {
         var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-            filter: (structure) => structure.hits < structure.hitsMax
+            filter: (structure) => structure.hits < structure.hitsMax && structure.hits < 1000
         });
-        if(closestDamagedStructure) {
-            tower.repair(closestDamagedStructure);
+        if (!closestDamagedStructure) {
+            closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
+                filter: (structure) => structure.hits < structure.hitsMax && structure.hitsMax <= 5000
+            });
         }
+        if (!closestDamagedStructure) {
+            closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
+                filter: (structure) => structure.hits < structure.hitsMax
+            });
+        }
+        tower.repair(closestDamagedStructure);
 
         var closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
         if(closestHostile) {
@@ -119,35 +87,48 @@ module.exports.loop = function () {
         extension = extensions[extension];
         energyForSpawning += extension.energy;
     }
-    // console.log('energyForSpawning:', energyForSpawning);
+    var possibleEnergyForSpawning = 300;
+    possibleEnergyForSpawning = 300 + (50 * extensions.length)
+    // console.log('energyForSpawning:', energyForSpawning, "out of possible", possibleEnergyForSpawning);
+    
+    var doSpawn = false;
+    if (energyForSpawning === possibleEnergyForSpawning) {
+        doSpawn = true;
+    }
 
-
+    
     var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-    console.log('Harvesters: ' + harvesters.length);
-    if(harvesters.length < 4) {
-        var newName = 'Harvester' + Game.time;
-        console.log('Spawning new harvester: ' + newName);
-        var result = Game.spawns['Spawn1'].spawnCreep(getCreepBodyParts('harvester', energyForSpawning), newName,
-            {memory: {role: 'harvester'}});
-        console.log('The result was: ' + result);
-    } else {
-        var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
-        console.log('Upgraders: ' + upgraders.length);
-        if(upgraders.length < 2 ) {
-            var newName = 'Upgrader' + Game.time;
-            console.log('Spawning new upgrader: ' + newName);
-            var result = Game.spawns['Spawn1'].spawnCreep(getCreepBodyParts('upgrader', energyForSpawning), newName,
-                {memory: {role: 'upgrader'}});
+    if (!doSpawn && harvesters.length < 2) {
+        doSpawn = true;
+    }
+    
+    if (doSpawn) {
+        console.log('Harvesters: ' + harvesters.length);
+        if(harvesters.length < 5) {
+            var newName = 'Harvester' + Game.time;
+            console.log('Spawning new harvester: ' + newName);
+            var result = Game.spawns['Spawn1'].spawnCreep(getCreepBodyParts('harvester', energyForSpawning), newName,
+                {memory: {role: 'harvester'}});
             console.log('The result was: ' + result);
         } else {
-            var builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
-            console.log('Builders: ' + builders.length);
-            if(builders.length < 4) {
-                var newName = 'Builder' + Game.time;
-                console.log('Spawning new builder: ' + newName);
-                var result = Game.spawns['Spawn1'].spawnCreep(getCreepBodyParts('builder', energyForSpawning), newName,
-                    {memory: {role: 'builder'}});
+            var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
+            console.log('Upgraders: ' + upgraders.length);
+            if(upgraders.length < 2 ) {
+                var newName = 'Upgrader' + Game.time;
+                console.log('Spawning new upgrader: ' + newName);
+                var result = Game.spawns['Spawn1'].spawnCreep(getCreepBodyParts('upgrader', energyForSpawning), newName,
+                    {memory: {role: 'upgrader'}});
                 console.log('The result was: ' + result);
+            } else {
+                var builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
+                console.log('Builders: ' + builders.length);
+                if(builders.length < 4) {
+                    var newName = 'Builder' + Game.time;
+                    console.log('Spawning new builder: ' + newName);
+                    var result = Game.spawns['Spawn1'].spawnCreep(getCreepBodyParts('builder', energyForSpawning), newName,
+                        {memory: {role: 'builder'}});
+                    console.log('The result was: ' + result);
+                }
             }
         }
     }
@@ -159,7 +140,13 @@ module.exports.loop = function () {
             Game.spawns['Spawn1'].pos.x + 1,
             Game.spawns['Spawn1'].pos.y,
             {align: 'left', opacity: 0.8});
-     }
+    } else {
+        Game.spawns['Spawn1'].room.visual.text(
+            'energyForSpawning: ' + energyForSpawning + " out of possible: " + possibleEnergyForSpawning,
+            Game.spawns['Spawn1'].pos.x + 1,
+            Game.spawns['Spawn1'].pos.y,
+            {align: 'left', opacity: 0.8});
+    }
 
    for(var name in Memory.creeps) {
         if(!Game.creeps[name]) {
