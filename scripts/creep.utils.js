@@ -28,7 +28,7 @@ var creepUtils = {
                 var source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
                 if (source) {
                     if(creep.harvest(source) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(source, {visualizePathStyle: {stroke: '#ffaa00'}});
+                        creep.moveTo(source, {visualizePathStyle: {stroke: '#ff0000'}});
                         Game.spawns['Spawn1'].room.visual.text(
                             'Hungry!',
                             creep.pos.x + 1,
@@ -53,8 +53,11 @@ var creepUtils = {
                 });
                 
                 creep.moveTo(Game.flags['CreepPasture'].pos, {visualizePathStyle: {stroke: '#ffffff'}});
+                return false;
             }
         }
+        
+        return true;
     }
 };
 

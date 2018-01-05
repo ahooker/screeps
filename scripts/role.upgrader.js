@@ -19,7 +19,9 @@ var roleUpgrader = {
                 creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#ffaa00'}});
             }
         } else {
-	        utils.grabEnergy(creep, {includeSources: true, includeContainers: true});
+	        if (!utils.grabEnergy(creep, {includeSources: true, includeContainers: true})) {
+	            creep.memory.upgrading = true;
+	        }
         }
 	}
 };
