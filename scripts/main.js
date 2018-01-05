@@ -1,45 +1,7 @@
+var utils = require('creep.utils');
 var roleHarvester = require('role.harvester');
 var roleUpgrader = require('role.upgrader');
 var roleBuilder = require('role.builder');
-
-function getCreepBodyParts(role, maxEnergy) {
-    console.log('maxEnergy:', maxEnergy);
-    
-    /*
-    console.log('BPC:');
-    for (var i in BODYPART_COST) {
-        console.log(i, ':', BODYPART_COST[i]);
-    }
-    */
-
-    var parts = [WORK, WORK];
-    
-    maxEnergy -= 200;
-    while (maxEnergy > 100) {
-        parts.push(MOVE);
-        parts.push(CARRY);
-        maxEnergy -= 100;
-    }
-    while (maxEnergy > 50) {
-        parts.push(MOVE);
-        maxEnergy -= 50;
-    }
-    console.log('parts:', parts);
-    return parts;
-    
-    
-    switch (role) {
-        case 'upgrader':
-            break;
-        case 'builder':
-            break;
-        case 'harvester':
-        default:
-            break;
-    }
-    
-    return parts;
-}
 
 module.exports.loop = function () {
     var tower = Game.getObjectById('5a4e7787e2555e0bfc83e762');
@@ -52,11 +14,13 @@ module.exports.loop = function () {
                 filter: (structure) => structure.hits < structure.hitsMax && structure.hitsMax <= 5000
             });
         }
+        /*
         if (!closestDamagedStructure) {
             closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
                 filter: (structure) => structure.hits < structure.hitsMax
             });
         }
+        */
         tower.repair(closestDamagedStructure);
 
         var closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
@@ -107,7 +71,7 @@ module.exports.loop = function () {
         if(harvesters.length < 5) {
             var newName = 'Harvester' + Game.time;
             console.log('Spawning new harvester: ' + newName);
-            var result = Game.spawns['Spawn1'].spawnCreep(getCreepBodyParts('harvester', energyForSpawning), newName,
+            var result = Game.spawns['Spawn1'].spawnCreep(utils.getCreepBodyParts('harvester', energyForSpawning), newName,
                 {memory: {role: 'harvester'}});
             console.log('The result was: ' + result);
         } else {
@@ -116,7 +80,7 @@ module.exports.loop = function () {
             if(upgraders.length < 2 ) {
                 var newName = 'Upgrader' + Game.time;
                 console.log('Spawning new upgrader: ' + newName);
-                var result = Game.spawns['Spawn1'].spawnCreep(getCreepBodyParts('upgrader', energyForSpawning), newName,
+                var result = Game.spawns['Spawn1'].spawnCreep(utils.getCreepBodyParts('upgrader', energyForSpawning), newName,
                     {memory: {role: 'upgrader'}});
                 console.log('The result was: ' + result);
             } else {
@@ -125,7 +89,7 @@ module.exports.loop = function () {
                 if(builders.length < 4) {
                     var newName = 'Builder' + Game.time;
                     console.log('Spawning new builder: ' + newName);
-                    var result = Game.spawns['Spawn1'].spawnCreep(getCreepBodyParts('builder', energyForSpawning), newName,
+                    var result = Game.spawns['Spawn1'].spawnCreep(utils.getCreepBodyParts('builder', energyForSpawning), newName,
                         {memory: {role: 'builder'}});
                     console.log('The result was: ' + result);
                 }

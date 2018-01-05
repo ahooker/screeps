@@ -36,28 +36,65 @@ var creepUtils = {
                             {align: 'left', opacity: 0.8});
                     }
                 } else {
-                        Game.spawns['Spawn1'].room.visual.text(
-                            'SO Hungry!',
-                            creep.pos.x + 1,
-                            creep.pos.y,
-                            {align: 'left', opacity: 0.8});
+                    Game.spawns['Spawn1'].room.visual.text(
+                        'SO Hungry!',
+                        creep.pos.x + 1,
+                        creep.pos.y,
+                        {align: 'left', opacity: 0.8});
+                    creep.moveTo(Game.flags['CreepPasture'].pos, {visualizePathStyle: {stroke: '#ffffff'}});
                 }
             } else {
                 // Nothing to do so move out of the way for now
-                var targets = creep.room.find(FIND_STRUCTURES, {
-                    filter: (structure) => {
-                        return (structure.structureType == STRUCTURE_EXTENSION ||
-                                structure.structureType == STRUCTURE_SPAWN ||
-                                structure.structureType == STRUCTURE_TOWER);
-                    }
-                });
-                
                 creep.moveTo(Game.flags['CreepPasture'].pos, {visualizePathStyle: {stroke: '#ffffff'}});
                 return false;
             }
         }
         
         return true;
+    },
+    getCreepBodyParts: function(role, maxEnergy) {
+        console.log('maxEnergy:', maxEnergy);
+        
+        /*
+        console.log('BPC:');
+        for (var i in BODYPART_COST) {
+            console.log(i, ':', BODYPART_COST[i]);
+        }
+        */
+    
+        var parts = [WORK, WORK];
+        maxEnergy -= 200;
+        
+        // 600+? extra work..
+        if (maxEnergy > 400) {
+            parts.push(WORK);
+            maxEnergy -= 100;
+        }
+
+        while (maxEnergy > 100) {
+            parts.push(MOVE);
+            parts.push(CARRY);
+            maxEnergy -= 100;
+        }
+        while (maxEnergy > 50) {
+            parts.push(MOVE);
+            maxEnergy -= 50;
+        }
+        console.log('parts:', parts);
+        return parts;
+        
+        
+        switch (role) {
+            case 'upgrader':
+                break;
+            case 'builder':
+                break;
+            case 'harvester':
+            default:
+                break;
+        }
+        
+        return parts;
     }
 };
 
