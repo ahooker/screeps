@@ -2,6 +2,12 @@ var creepUtils = {
     expansions: function() {
         return ['Expansion1', 'Expansion2', 'Expansion3', 'Expansion4'];
     },
+    expansionRoutes: function() {
+        var routes = [];
+        routes.push(['Spawn1', 'Expansion1']);
+        routes.push(['Expansion1', 'Expansion2']);
+        return routes;
+    },
     howManyCreeps: function(role) {
         switch (role) {
             case 'thief':
@@ -9,7 +15,7 @@ var creepUtils = {
             case 'wallbreaker':
                 return 0;
             case 'builder':
-                return 1;
+                return 2;
             default:
                 return 1;
         }

@@ -38,9 +38,20 @@ var roleThief = {
         }
         
         if (creep.memory.claimer) {
-            var controller = Game.getObjectById('59bbc5462052a716c3ce93a5');
-            if (creep.reserveController(controller) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(controller, {visualizePathStyle: {stroke: '#00ff00'}});
+            if (creep.memory.in_position) {
+                var controller = creep.pos.findClosestByRange(FIND_STRUCTURES, { filter: (structure) => { return (structure.structureType == STRUCTURE_CONTROLLER) } });
+                // var controller = Game.getObjectById('59bbc5462052a716c3ce93a5');
+                if (creep.reserveController(controller) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(controller, {visualizePathStyle: {stroke: '#00ff00'}});
+                }
+            } else {
+                var targetFlag = Game.flags[creep.memory.expansion];
+                creep.moveTo(targetFlag.pos, {visualizePathStyle: {stroke: '#ffffff'}});
+                
+                if (creep.pos.inRangeTo(targetFlag.pos, 5)) {
+                    // console.log('I am at the expansion!', creep.memory.expansion);
+                    creep.memory.in_position = true;
+                }
             }
             return;
         }
@@ -69,12 +80,12 @@ var roleThief = {
             var targetFlag = Game.flags['EnergyDrop1'];
             creep.moveTo(targetFlag.pos, {visualizePathStyle: {stroke: '#ffffff'}});
             
-            if (creep.pos.isEqualTo(targetFlag.pos)) {
+            if (creep.pos.inRangeTo(targetFlag.pos, 2)) {
                 // console.log('I am at the drop point!');
                 creep.memory.mode = 'dropping';
             }
         } else if (creep.memory.mode == 'dropping') {
-            var targets = creep.room.find(FIND_STRUCTURES, { filter: (structure) => { return (structure.structureType == STRUCTURE_CONTAINER && structure.store.energy < structure.energyCapacity) } });
+            var targets = creep.room.find(FIND_STRUCTURES, { filter: (structure) => { return (structure.structureType == STRUCTURE_CONTAINER && structure.store.energy < structure.storeCapacity) } });
             console.log('found willing containers:', targets.length);
             
             if (targets.length > 0) {
@@ -85,8 +96,8 @@ var roleThief = {
                 if (creep.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
                 }
-                if (creep.carry.energy > 0) {
-                    creep.drop(RESOURCE_ENERGY);
+                
+                if (creep.carry.energy === 0) {
                     creep.memory.mode = 'venturing';
                 }
             } else {

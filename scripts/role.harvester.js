@@ -34,7 +34,7 @@ var roleHarvester = {
             });
         }
         if (targets.length === 0) {
-            targets = creep.room.find(FIND_STRUCTURES, { filter: (structure) => { return ((structure.structureType == STRUCTURE_CONTAINER)) } });
+            targets = creep.room.find(FIND_STRUCTURES, { filter: (structure) => { return (structure.structureType == STRUCTURE_CONTAINER && structure.store.energy < structure.storeCapacity) } });
         }
 
         if (targets.length > 0) {
@@ -51,15 +51,8 @@ var roleHarvester = {
             }
         } else {
             // Nothing to do so move out of the way for now
-            var targets = creep.room.find(FIND_STRUCTURES, {
-                filter: (structure) => {
-                    return (structure.structureType == STRUCTURE_EXTENSION ||
-                            structure.structureType == STRUCTURE_SPAWN ||
-                            structure.structureType == STRUCTURE_TOWER);
-                }
-            });
-            creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
-            creep.memory.harvesting = false;
+            utils.goToPasture(creep);
+            creep.memory.harvesting = true;
         }
     }
 };
