@@ -11,6 +11,24 @@ module.exports.loop = function () {
     //     console.log(i, ':', BODYPART_COST[i]);
     // }
 
+
+    if (!Memory.lastConstructionUpdate || Memory.lastConstructionUpdate < Game.time - 300) {
+        var paths = utils.expansionPaths();
+        for (var pathIndex in paths) {
+            var path = paths[pathIndex];
+
+            for (positionIndex in path.path) {
+                var position = path.path[positionIndex];
+                var room = Game.rooms[path.path[positionIndex].roomName];
+                if (room && room.lookForAt(LOOK_STRUCTURES, position.x, position.y).length == 0) {
+                    room.createConstructionSite(position.x, position.y, STRUCTURE_ROAD);
+                }
+            }
+        }
+
+        Memory.lastConstructionUpdate = Game.time;
+    }
+
     var tower = Game.getObjectById('5a4e7787e2555e0bfc83e762');
     if(tower) {
         var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
@@ -142,8 +160,8 @@ module.exports.loop = function () {
             {align: 'left', opacity: 0.8});
     }
 
-   for(var name in Memory.creeps) {
-        if(!Game.creeps[name]) {
+    for (var name in Memory.creeps) {
+        if (!Game.creeps[name]) {
             delete Memory.creeps[name];
             console.log('Clearing non-existing creep memory:', name);
         }
