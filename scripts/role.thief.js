@@ -1,5 +1,7 @@
 var utils = require('creep.utils');
 
+var expansions = utils.expansions();
+
 var roleThief = {
     run: function(creep) {
         if (typeof creep.memory.claimer === 'undefined') {
@@ -13,6 +15,28 @@ var roleThief = {
             creep.memory.claimer = claimer;
         }
         
+        if (typeof creep.memory.expansion === 'undefined') {
+            // I want 10
+            var thievesWanted = utils.howManyCreeps('thief');
+            
+            // I have 5
+            var thieves = _.sortBy(_.filter(Game.creeps, (creep) => creep.memory.role == 'thief'), t => t.ticksToLive);
+            
+            var expansion = 0;
+            var creepsInExpansion = 0;
+            console.log('I have', thieves.length, 'and I want', thievesWanted);
+            for (var i in thieves) {
+                thieves[i].memory.expansion = expansions[expansion];
+                creepsInExpansion++;
+                
+                console.log('Thief went into', expansions[expansion]);
+                if (creepsInExpansion == 5) {
+                    creepsInExpansion = 0;
+                    expansion++;
+                }
+            }
+        }
+        
         if (creep.memory.claimer) {
             var controller = Game.getObjectById('59bbc5462052a716c3ce93a5');
             if (creep.reserveController(controller) == ERR_NOT_IN_RANGE) {
@@ -22,18 +46,19 @@ var roleThief = {
         }
 
         if (creep.memory.mode == 'venturing') {
-            var targetFlag = Game.flags['Expansion1'];
+            // console.log('Looking for the flag:', creep.memory.expansion);
+            var targetFlag = Game.flags[creep.memory.expansion];
             creep.moveTo(targetFlag.pos, {visualizePathStyle: {stroke: '#ffffff'}});
             
             if (creep.pos.inRangeTo(targetFlag.pos, 5)) {
-                // console.log('I am at the expansion!');
+                // console.log('I am at the expansion!', creep.memory.expansion);
                 creep.memory.mode = 'harvesting';
             }
         } else if (creep.memory.mode == 'harvesting') {
             if (utils.grabDroppedEnergy(creep)) {
-                console.log('grabDroppedEnergy worked');
+                // console.log('grabDroppedEnergy worked');
             } else if (utils.grabEnergy(creep, {includeSources: true, includeContainers: false})) {
-                console.log('grabEnergy worked?');
+                // console.log('grabEnergy worked?');
 	        } else {
                 console.log('Carrying:', creep.carry.energy);
                 if (creep.carry.energy > 0) {

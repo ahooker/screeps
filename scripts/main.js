@@ -95,7 +95,7 @@ module.exports.loop = function () {
             } else {
                 var builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
                 console.log('Builders: ' + builders.length);
-                if(builders.length < 2) {
+                if(builders.length < utils.howManyCreeps('builder')) {
                     var newName = 'Builder' + Game.time;
                     console.log('Spawning new builder: ' + newName);
                     var result = Game.spawns['Spawn1'].spawnCreep(utils.getCreepBodyParts('builder', energyForSpawning), newName,
@@ -104,16 +104,17 @@ module.exports.loop = function () {
                 } else {
                     var wallbreakers = _.filter(Game.creeps, (creep) => creep.memory.role == 'wallbreaker');
                     console.log('Wallbreakers: ' + wallbreakers.length);
-                    if (wallbreakers.length < 1) {
+                    if (wallbreakers.length < utils.howManyCreeps('wallbreaker')) {
                         var newName = 'Wallbreaker' + Game.time;
                         console.log('Spawning new wallbreaker: ' + newName);
                         var result = Game.spawns['Spawn1'].spawnCreep(utils.getCreepBodyParts('wallbreaker', energyForSpawning), newName,
                             {memory: {role: 'wallbreaker'}});
                         console.log('The result was: ' + result);
                     } else {
+                        var thievesWanted = utils.howManyCreeps('thief');
                         var thieves = _.filter(Game.creeps, (creep) => creep.memory.role == 'thief');
                         console.log('Thieves: ' + thieves.length);
-                        if (thieves.length < 5) {
+                        if (thieves.length < thievesWanted) {
                             var newName = 'Thief' + Game.time;
                             console.log('Spawning new thief: ' + newName);
                             var result = Game.spawns['Spawn1'].spawnCreep(utils.getCreepBodyParts('thief', energyForSpawning, thieves.length), newName,

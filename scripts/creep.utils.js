@@ -1,4 +1,19 @@
 var creepUtils = {
+    expansions: function() {
+        return ['Expansion1', 'Expansion2', 'Expansion3', 'Expansion4'];
+    },
+    howManyCreeps: function(role) {
+        switch (role) {
+            case 'thief':
+                return 21;
+            case 'wallbreaker':
+                return 0;
+            case 'builder':
+                return 1;
+            default:
+                return 1;
+        }
+    },
     grabEnergy: function(creep, opts) {
         if (creep.carry.energy === creep.carryCapacity) {
             return false;
@@ -14,7 +29,7 @@ var creepUtils = {
         var targets = [];
         if (opts.includeContainers) {
             targets = Game.rooms[creep.room.name].find(FIND_STRUCTURES, { filter: (structure) => { return (structure.structureType == STRUCTURE_CONTAINER && structure.store.energy > 0) } });
-            console.log('I found containers for eating!', targets.length, 'of them! - ', creep.memory.role);
+            // console.log('I found containers for eating!', targets.length, 'of them! - ', creep.memory.role);
         }
         
         if (targets.length > 0) {
@@ -82,11 +97,13 @@ var creepUtils = {
         }
     },
     goToPasture: function(creep) {
-        /*
-        var targets = [Game.flags['CreepPasture'].pos, Game.flags['CreepPasture2'].pos];
-        targets = _.sortBy(targets, s => creep.pos.getRangeTo(s));
-        */
-        creep.moveTo(Game.flags['CreepPasture'].pos, {visualizePathStyle: {stroke: '#ffffff'}});
+        var target = creep.pos.findClosestByPath(FIND_FLAGS, {
+            filter: (f) => {return f.name.substr(0, 12) === 'CreepPasture'}
+        });
+        
+        if (target) {
+            creep.moveTo(target.pos, {visualizePathStyle: {stroke: '#00ff00'}});
+        }
     },
     getCreepBodyParts: function(role, maxEnergy, howManyAlready) {
         console.log('maxEnergy:', maxEnergy);
@@ -115,16 +132,9 @@ var creepUtils = {
         var parts = [];
         
         if (role == 'thief' && maxEnergy >= 650) {
-            var makeClaimer = true;
-            var thieves = _.filter(Game.creeps, (creep) => creep.memory.role == 'thief');
-            for (var i in thieves) {
-                if (thieves[i].memory.claimer) {
-                    makeClaimer = false;
-                    break;
-                }
-            }
-            
-            if (makeClaimer) {
+            var thieves = _.filter(Game.creeps, (creep) => { return (creep.memory.role == 'thief') } );
+            var claimers = _.filter(Game.creeps, (creep) => { return (creep.memory.role == 'thief' && creep.memory.claimer) } );
+            if (claimers.length < Math.ceil(thieves.length / 5)) {
                 parts.push(CLAIM);
                 maxEnergy -= 600;
                 while (maxEnergy > 50) {

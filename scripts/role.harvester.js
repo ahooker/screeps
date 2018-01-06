@@ -12,6 +12,8 @@ var roleHarvester = {
                     return;
     	        } else if (utils.grabEnergy(creep, {includeSources: true, includeContainers: false})) {
     	            return;
+    	        } else if (utils.grabEnergy(creep, {includeSources: false, includeContainers: true})) {
+    	            return;
     	        } else {
                     creep.memory.harvesting = false;
     	        }
