@@ -2,8 +2,15 @@ var utils = require('creep.utils');
 var roleHarvester = require('role.harvester');
 var roleUpgrader = require('role.upgrader');
 var roleBuilder = require('role.builder');
+var roleWallbreaker = require('role.wallbreaker');
+var roleThief = require('role.thief');
 
 module.exports.loop = function () {
+    // console.log('BPC:');
+    // for (var i in BODYPART_COST) {
+    //     console.log(i, ':', BODYPART_COST[i]);
+    // }
+    
     var tower = Game.getObjectById('5a4e7787e2555e0bfc83e762');
     if(tower) {
         var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
@@ -31,21 +38,23 @@ module.exports.loop = function () {
 
     for(var name in Game.creeps) {
         var creep = Game.creeps[name];
-        if(creep.memory.role == 'harvester') {
+        if (creep.memory.role == 'harvester') {
             roleHarvester.run(creep);
-        }
-        if(creep.memory.role == 'upgrader') {
+        } else if (creep.memory.role == 'upgrader') {
             roleUpgrader.run(creep);
-        }
-        if(creep.memory.role == 'builder') {
+        } else if (creep.memory.role == 'builder') {
             roleBuilder.run(creep);
+        } else if (creep.memory.role == 'wallbreaker') {
+            roleWallbreaker.run(creep);
+        } else if (creep.memory.role == 'thief') {
+            roleThief.run(creep);
         }
     }
 
     var energyForSpawning = 0;
     energyForSpawning += Game.spawns['Spawn1'].energy;
     var extensions = Game.spawns.Spawn1.room.find(FIND_MY_STRUCTURES, {
-      filter: { structureType: STRUCTURE_EXTENSION }
+        filter: { structureType: STRUCTURE_EXTENSION }
     });
     for (var extension in extensions) {
         extension = extensions[extension];
@@ -77,7 +86,7 @@ module.exports.loop = function () {
         } else {
             var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
             console.log('Upgraders: ' + upgraders.length);
-            if(upgraders.length < 2 ) {
+            if(upgraders.length < 4 ) {
                 var newName = 'Upgrader' + Game.time;
                 console.log('Spawning new upgrader: ' + newName);
                 var result = Game.spawns['Spawn1'].spawnCreep(utils.getCreepBodyParts('upgrader', energyForSpawning), newName,
@@ -86,12 +95,32 @@ module.exports.loop = function () {
             } else {
                 var builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
                 console.log('Builders: ' + builders.length);
-                if(builders.length < 4) {
+                if(builders.length < 2) {
                     var newName = 'Builder' + Game.time;
                     console.log('Spawning new builder: ' + newName);
                     var result = Game.spawns['Spawn1'].spawnCreep(utils.getCreepBodyParts('builder', energyForSpawning), newName,
                         {memory: {role: 'builder'}});
                     console.log('The result was: ' + result);
+                } else {
+                    var wallbreakers = _.filter(Game.creeps, (creep) => creep.memory.role == 'wallbreaker');
+                    console.log('Wallbreakers: ' + wallbreakers.length);
+                    if (wallbreakers.length < 1) {
+                        var newName = 'Wallbreaker' + Game.time;
+                        console.log('Spawning new wallbreaker: ' + newName);
+                        var result = Game.spawns['Spawn1'].spawnCreep(utils.getCreepBodyParts('wallbreaker', energyForSpawning), newName,
+                            {memory: {role: 'wallbreaker'}});
+                        console.log('The result was: ' + result);
+                    } else {
+                        var thieves = _.filter(Game.creeps, (creep) => creep.memory.role == 'thief');
+                        console.log('Thieves: ' + thieves.length);
+                        if (thieves.length < 5) {
+                            var newName = 'Thief' + Game.time;
+                            console.log('Spawning new thief: ' + newName);
+                            var result = Game.spawns['Spawn1'].spawnCreep(utils.getCreepBodyParts('thief', energyForSpawning, thieves.length), newName,
+                                {memory: {role: 'thief'}});
+                            console.log('The result was: ' + result);
+                        }
+                    }
                 }
             }
         }
@@ -100,7 +129,7 @@ module.exports.loop = function () {
     if (Game.spawns['Spawn1'].spawning) {
         var spawningCreep = Game.creeps[Game.spawns['Spawn1'].spawning.name];
         Game.spawns['Spawn1'].room.visual.text(
-            'Spawning a ' + spawningCreep.memory.role,
+            'Spawning ' + spawningCreep.memory.role,
             Game.spawns['Spawn1'].pos.x + 1,
             Game.spawns['Spawn1'].pos.y,
             {align: 'left', opacity: 0.8});

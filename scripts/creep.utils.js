@@ -1,5 +1,9 @@
 var creepUtils = {
     grabEnergy: function(creep, opts) {
+        if (creep.carry.energy === creep.carryCapacity) {
+            return false;
+        }
+
         if (!opts.hasOwnProperty('includeContainers')) {
             opts['includeContainers'] = true;
         }
@@ -10,6 +14,7 @@ var creepUtils = {
         var targets = [];
         if (opts.includeContainers) {
             targets = Game.rooms[creep.room.name].find(FIND_STRUCTURES, { filter: (structure) => { return (structure.structureType == STRUCTURE_CONTAINER && structure.store.energy > 0) } });
+            console.log('I found containers for eating!', targets.length, 'of them! - ', creep.memory.role);
         }
         
         if (targets.length > 0) {
@@ -28,7 +33,7 @@ var creepUtils = {
                 var source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
                 if (source) {
                     if(creep.harvest(source) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(source, {visualizePathStyle: {stroke: '#ff0000'}});
+                        creep.moveTo(source, {visualizePathStyle: {stroke: '#ffaa00'}});
                         Game.spawns['Spawn1'].room.visual.text(
                             'Hungry!',
                             creep.pos.x + 1,
@@ -43,21 +48,62 @@ var creepUtils = {
                         {align: 'left', opacity: 0.8});
                     var targets = [Game.flags['CreepPasture'].pos, Game.flags['CreepPasture2'].pos];
                     targets = _.sortBy(targets, s => creep.pos.getRangeTo(s));
-                    creep.moveTo(Game.flags['CreepPasture'].pos, {visualizePathStyle: {stroke: '#ffffff'}});
+                    creep.moveTo(targets[0].pos, {visualizePathStyle: {stroke: '#ffffff'}});
+                    return false;
                 }
             } else {
                 // Nothing to do so move out of the way for now
                 var targets = [Game.flags['CreepPasture'].pos, Game.flags['CreepPasture2'].pos];
                 targets = _.sortBy(targets, s => creep.pos.getRangeTo(s));
-                creep.moveTo(Game.flags['CreepPasture'].pos, {visualizePathStyle: {stroke: '#ffffff'}});
+                creep.moveTo(targets[0].pos, {visualizePathStyle: {stroke: '#ffffff'}});
                 return false;
             }
         }
         
         return true;
     },
-    getCreepBodyParts: function(role, maxEnergy) {
+    grabDroppedEnergy: function(creep) {
+        if (creep.carry.energy === creep.carryCapacity) {
+            return false;
+        }
+        
+        var droppedEnergy = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {
+            filter: (d) => {return (d.resourceType == RESOURCE_ENERGY)}
+        });
+        if (droppedEnergy) {
+            // console.log('I found some dropped energy!', droppedEnergy);
+            if (creep.pickup(droppedEnergy) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(droppedEnergy.pos, {visualizePathStyle: {stroke: '#ffffff'}});
+            }
+            return true;
+        } else {
+            // console.log('No dropped energy around...');
+            return false;
+        }
+    },
+    goToPasture: function(creep) {
+        /*
+        var targets = [Game.flags['CreepPasture'].pos, Game.flags['CreepPasture2'].pos];
+        targets = _.sortBy(targets, s => creep.pos.getRangeTo(s));
+        */
+        creep.moveTo(Game.flags['CreepPasture'].pos, {visualizePathStyle: {stroke: '#ffffff'}});
+    },
+    getCreepBodyParts: function(role, maxEnergy, howManyAlready) {
         console.log('maxEnergy:', maxEnergy);
+        
+        if (role == 'wallbreaker') {
+            var parts = [];
+            while (maxEnergy > 130) {
+                parts.push(MOVE);
+                parts.push(ATTACK);
+                maxEnergy -= 130;
+            }
+            while (maxEnergy > 50) {
+                parts.push(MOVE);
+                maxEnergy -= 50;
+            }
+            return parts;
+        }
         
         /*
         console.log('BPC:');
@@ -66,7 +112,32 @@ var creepUtils = {
         }
         */
     
-        var parts = [WORK, WORK];
+        var parts = [];
+        
+        if (role == 'thief' && maxEnergy >= 650) {
+            var makeClaimer = true;
+            var thieves = _.filter(Game.creeps, (creep) => creep.memory.role == 'thief');
+            for (var i in thieves) {
+                if (thieves[i].memory.claimer) {
+                    makeClaimer = false;
+                    break;
+                }
+            }
+            
+            if (makeClaimer) {
+                parts.push(CLAIM);
+                maxEnergy -= 600;
+                while (maxEnergy > 50) {
+                    parts.push(MOVE);
+                    maxEnergy -= 50;
+                }
+                console.log('Making a thief who can claim!', parts);
+                return parts;
+            }
+        }
+        
+        parts.push(WORK);
+        parts.push(WORK);
         maxEnergy -= 200;
         
         // 600+? extra work..

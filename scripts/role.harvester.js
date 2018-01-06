@@ -8,7 +8,13 @@ var roleHarvester = {
             if (creep.carry.energy === creep.carryCapacity) {
                 creep.memory.harvesting = false;
             } else {
-    	        return utils.grabEnergy(creep, {includeSources: true, includeContainers: false});
+                if (utils.grabDroppedEnergy(creep)) {
+                    return;
+    	        } else if (utils.grabEnergy(creep, {includeSources: true, includeContainers: false})) {
+    	            return;
+    	        } else {
+                    creep.memory.harvesting = false;
+    	        }
             }
         }
         
@@ -29,8 +35,10 @@ var roleHarvester = {
             targets = creep.room.find(FIND_STRUCTURES, { filter: (structure) => { return ((structure.structureType == STRUCTURE_CONTAINER)) } });
         }
 
-        if(targets.length > 0) {
-            targets = _.sortBy(targets, s => creep.pos.getRangeTo(s));
+        if (targets.length > 0) {
+            if (targets.length > 1) {
+                targets = _.sortBy(targets, s => creep.pos.getRangeTo(s));
+            }
             
             if (creep.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                 creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
@@ -49,6 +57,7 @@ var roleHarvester = {
                 }
             });
             creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
+            creep.memory.harvesting = false;
         }
     }
 };

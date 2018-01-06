@@ -23,7 +23,16 @@ var roleBuilder = {
             }
         } else {
 	        if (!utils.grabEnergy(creep, {includeSources: false, includeContainers: true})) {
-	            creep.memory.building = true;
+	            // console.log('Builder could not grabEnergy');
+                if (!utils.grabDroppedEnergy(creep)) {
+                    // console.log('Builder could not grabDroppedEnergy');
+                    
+                    if (creep.carry.energy > 0) {
+                        creep.memory.building = true;
+                    } else {
+                        utils.goToPasture(creep);
+                    }
+                }
 	        }
         }
     }
