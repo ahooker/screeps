@@ -1,13 +1,13 @@
 var creepUtils = {
     expansions: function() {
-        return ['Expansion1', 'Expansion2', 'Expansion3', 'Expansion4'];
+        return ['Expansion1', 'Expansion2', 'Expansion3', 'Expansion4', 'Expansion5'];
     },
     expansionPaths: function() {
-        delete Memory.expansionRoutes;
         if (!Memory.expansionPaths) {
             var pathMap = [];
             pathMap.push(['Spawn1', 'Expansion1']);
             pathMap.push(['Expansion1', 'Expansion2']);
+            pathMap.push(['Expansion1', 'Expansion3']);
 
             var expansionPaths = [];
             for (var i in pathMap) {

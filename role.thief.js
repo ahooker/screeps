@@ -37,6 +37,10 @@ var roleThief = {
             }
         }
 
+        if (Game.time % 10 === 0) {
+            creep.say(creep.memory.expansion);
+        }
+
         if (creep.memory.claimer) {
             if (creep.memory.in_position) {
                 var controller = creep.pos.findClosestByRange(FIND_STRUCTURES, { filter: (structure) => { return (structure.structureType == STRUCTURE_CONTROLLER) } });
@@ -77,6 +81,17 @@ var roleThief = {
                 }
 	        }
         } else if (creep.memory.mode == 'returning') {
+            var constructionSite = creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
+            if (constructionSite && creep.pos.inRangeTo(constructionSite, 5)) {
+                if (creep.build(constructionSite) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(constructionSite.pos, {visualizePathStyle: {stroke: '#0000ff'}});
+                }
+                if (creep.carry.energy === 0) {
+                    creep.memory.mode = 'venturing';
+                }
+                return;
+            }
+
             var targetFlag = Game.flags['EnergyDrop1'];
             creep.moveTo(targetFlag.pos, {visualizePathStyle: {stroke: '#ffffff'}});
 
