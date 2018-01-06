@@ -10,7 +10,7 @@ module.exports.loop = function () {
     // for (var i in BODYPART_COST) {
     //     console.log(i, ':', BODYPART_COST[i]);
     // }
-    
+
     var tower = Game.getObjectById('5a4e7787e2555e0bfc83e762');
     if(tower) {
         var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
@@ -63,18 +63,18 @@ module.exports.loop = function () {
     var possibleEnergyForSpawning = 300;
     possibleEnergyForSpawning = 300 + (50 * extensions.length)
     // console.log('energyForSpawning:', energyForSpawning, "out of possible", possibleEnergyForSpawning);
-    
+
     var doSpawn = false;
     if (energyForSpawning === possibleEnergyForSpawning) {
         doSpawn = true;
     }
 
-    
+
     var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
     if (!doSpawn && harvesters.length < 2) {
         doSpawn = true;
     }
-    
+
     if (doSpawn) {
         console.log('Harvesters: ' + harvesters.length);
         if(harvesters.length < 5) {
