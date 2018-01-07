@@ -101,8 +101,9 @@ var roleThief = {
 
         if (creep.memory.mode == 'venturing') {
             // console.log('Looking for the flag:', creep.memory.expansion);
+            var targetFlag = Game.flags[creep.memory.expansion];
+
             if (!creep.memory.path) {
-                var targetFlag = Game.flags[creep.memory.expansion];
                 var path = creep.pos.findPathTo(targetFlag.pos);
                 creep.memory.path = Room.serializePath(path);
             }
