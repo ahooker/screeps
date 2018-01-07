@@ -1,5 +1,5 @@
 function sortCreepBodyParts(parts) {
-    console.log('I want to sort these:', JSON.stringify(parts));
+    // console.log('I want to sort these:', JSON.stringify(parts));
 
     var sortedParts = {};
     for (var i in parts) {
@@ -54,7 +54,7 @@ function sortCreepBodyParts(parts) {
         delete sortedParts[partIndex];
     }
 
-    console.log('How about this?:', JSON.stringify(parts));
+    // console.log('How about this?:', JSON.stringify(parts));
     return parts;
 }
 

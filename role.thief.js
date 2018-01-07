@@ -135,7 +135,7 @@ var roleThief = {
             }
 
             var constructionSite = creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
-            if (constructionSite && creep.pos.inRangeTo(constructionSite, 2)) {
+            if (constructionSite && creep.pos.inRangeTo(constructionSite, 10)) {
                 if (creep.build(constructionSite) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(constructionSite.pos, {visualizePathStyle: {stroke: '#0000ff'}});
                 }
