@@ -1,3 +1,5 @@
+var utils = require('creep.utils');
+
 var roleHarvester = require('role.harvester');
 var roleUpgrader = require('role.upgrader');
 var roleBuilder = require('role.builder');
@@ -16,8 +18,21 @@ function extendCreeps() {
         enumerable: false,
         configurable: true
     });
+    Creep.prototype.log = function(message) {
+        console.log(this.name + ': ' + message);
+    };
     Creep.prototype.init = function() {
+        if (!this.memory.role) {
+            this.log('Wanted to init, but I had no role.');
+            return false;
+        }
 
+        var brain = require('role.' + this.memory.role);
+        if (brain.init) {
+            brain.init(this);
+        } else {
+            this.log('Wanted to init, there was no method for me to call.');
+        }
     };
     Creep.prototype.run = function() {
         if (!this.memory.role) {
@@ -120,11 +135,11 @@ function extendGame() {
                 return memory.creepsByRole;
             }
 
-            console.log('derp derp');
-            var sortedCreeps = {
-                'harvester': [],
-                'wallbreaker': []
-            };
+            var sortedCreeps = {};
+            var roles = utils.roles();
+            for (var roleIndex in roles) {
+                sortedCreeps[roles[roleIndex]] = [];
+            }
 
             for (var creepIndex in Game.creeps) {
                 var role = Game.creeps[creepIndex].memory.role;

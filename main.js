@@ -67,62 +67,38 @@ profiler.wrap(function() {
     }
 
     var spawn = Game.spawns['Spawn1'];
+    if (Game.time % 15 === 0) {
+        var creepStats = [];
+        _.forEach(spawn.creepsByRole, (creeps, role) => {
+            creepStats.push(role + ': ' + creeps.length);
+        });
+        console.log(creepStats.join(', '));
+    }
+
     var doSpawn = false;
-    if (spawn.totalEnergyAvailable === spawn.totalEnergyPossible) {
-        doSpawn = true;
-    }
-
-    // var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-    if (!doSpawn && spawn.creepsByRole.harvester.length < 2) {
-        doSpawn = true;
-    }
-
-    console.log('Harvesters: ' + spawn.creepsByRole.harvester.length);
-    console.log('Upgraders: ' + spawn.creepsByRole.upgrader.length);
-    console.log('Builders: ' + spawn.creepsByRole.builder.length);
-    console.log('Wallbreakers: ' + spawn.creepsByRole.wallbreaker.length);
-    console.log('Thieves: ' + spawn.creepsByRole.thief.length);
-    if (doSpawn) {
-        if (spawn.creepsByRole.harvester.length < utils.howManyCreeps('harvester')) {
-            var newName = 'Harvester' + Game.time;
-            console.log('Spawning new harvester: ' + newName);
-            var result = spawn.spawnCreep(utils.getCreepBodyParts('harvester', spawn.totalEnergyAvailable), newName,
-                {memory: {role: 'harvester'}});
-            console.log('The result was: ' + result);
-        } else {
-            if(spawn.creepsByRole.upgrader.length < 2 ) {
-                var newName = 'Upgrader' + Game.time;
-                console.log('Spawning new upgrader: ' + newName);
-                var result = spawn.spawnCreep(utils.getCreepBodyParts('upgrader', spawn.totalEnergyAvailable), newName,
-                    {memory: {role: 'upgrader'}});
-                console.log('The result was: ' + result);
-            } else {
-                if(spawn.creepsByRole.builder.length < utils.howManyCreeps('builder')) {
-                    var newName = 'Builder' + Game.time;
-                    console.log('Spawning new builder: ' + newName);
-                    var result = spawn.spawnCreep(utils.getCreepBodyParts('builder', spawn.totalEnergyAvailable), newName,
-                        {memory: {role: 'builder'}});
-                    console.log('The result was: ' + result);
-                } else {
-                    if (spawn.creepsByRole.wallbreaker.length < utils.howManyCreeps('wallbreaker')) {
-                        var newName = 'Wallbreaker' + Game.time;
-                        console.log('Spawning new wallbreaker: ' + newName);
-                        var result = spawn.spawnCreep(utils.getCreepBodyParts('wallbreaker', spawn.totalEnergyAvailable), newName,
-                            {memory: {role: 'wallbreaker'}});
-                        console.log('The result was: ' + result);
-                    } else {
-                        var thievesWanted = utils.howManyCreeps('thief');
-                        if (spawn.creepsByRole.thief.length < thievesWanted) {
-                            var newName = 'Thief' + Game.time;
-                            console.log('Spawning new thief: ' + newName);
-                            var result = spawn.spawnCreep(utils.getCreepBodyParts('thief', spawn.totalEnergyAvailable, spawn.creepsByRole.thief.length), newName,
-                                {memory: {role: 'thief'}});
-                            console.log('The result was: ' + result);
-                        }
-                    }
-                }
-            }
+    if (!spawn.spawning) {
+        if (spawn.totalEnergyAvailable === spawn.totalEnergyPossible) {
+            doSpawn = true;
         }
+
+        // var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
+        if (!doSpawn && spawn.creepsByRole.harvester.length < 2) {
+            // emergency spawn some little harvesters
+            doSpawn = true;
+        }
+    }
+
+    if (doSpawn) {
+        var roles = utils.roles();
+        _.forEach(utils.roles(), (role) => {
+            // console.log('Hark, the role:', role);
+            if (spawn.creepsByRole[role].length < utils.howManyCreeps(role)) {
+                var newName = _.capitalize(role) + Game.time;
+                var result = spawn.spawnCreep(utils.getCreepBodyParts(role, spawn.totalEnergyAvailable), newName, {memory: {role: role}});
+                console.log('Spawning new creep: ' + newName + ' (' + result + ')');
+                Game.creeps[newName].init();
+            }
+        });
     }
 
     var status = [];
@@ -143,8 +119,10 @@ profiler.wrap(function() {
     }
     status.push('energyForSpawning: ' + spawn.totalEnergyAvailable + " out of possible: " + spawn.totalEnergyPossible);
 
-    for (var i in status) {
-        console.log(status[i]);
+    if (Game.time % 15 === 0) {
+        for (var i in status) {
+            console.log(status[i]);
+        }
     }
 
     for (var name in Memory.creeps) {
