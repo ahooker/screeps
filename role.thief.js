@@ -66,6 +66,7 @@ function findAndAttackHostile(creep) {
 
 function runClaimer(creep) {
     if (creep.memory.in_position) {
+        delete creep.memory._trav;
         var controller = creep.pos.findClosestByRange(FIND_STRUCTURES, { filter: (structure) => { return (structure.structureType == STRUCTURE_CONTROLLER) } });
         // var controller = Game.getObjectById('59bbc5462052a716c3ce93a5');
         if (creep.reserveController(controller) == ERR_NOT_IN_RANGE) {
@@ -73,7 +74,8 @@ function runClaimer(creep) {
         }
     } else {
         var targetFlag = Game.flags[creep.memory.expansion];
-        creep.moveTo(targetFlag.pos, {visualizePathStyle: {stroke: '#ffffff'}});
+        // creep.moveTo(targetFlag.pos, {visualizePathStyle: {stroke: '#ffffff'}});
+        creep.travelTo(targetFlag.pos);
 
         if (creep.pos.inRangeTo(targetFlag.pos, 5)) {
             // console.log('I am at the expansion!', creep.memory.expansion);
@@ -86,7 +88,12 @@ function executeVentureStage(creep) {
     // console.log('Looking for the flag:', creep.memory.expansion);
     var targetFlag = Game.flags[creep.memory.expansion];
 
-    creep.moveTo(targetFlag.pos, {reusePath: 30});
+    // creep.moveTo(targetFlag.pos, {reusePath: 30});
+    if (!targetFlag) {
+        creep.init();
+        return;
+    }
+    creep.travelTo(targetFlag.pos);
 
     if (Game.time % 5 === 0) {
         if (creep.pos.inRangeTo(targetFlag.pos, 10)) {
@@ -140,7 +147,8 @@ function executeReturnStage(creep) {
     }
 
     var targetFlag = Game.flags['EnergyDrop1'];
-    creep.moveTo(targetFlag.pos, {reusePath: 30, visualizePathStyle: {stroke: '#ffffff'}});
+    // creep.moveTo(targetFlag.pos, {reusePath: 30, visualizePathStyle: {stroke: '#ffffff'}});
+    creep.travelTo(targetFlag.pos);
 
     if (creep.pos.inRangeTo(targetFlag.pos, 2)) {
         // console.log('I am at the drop point!');

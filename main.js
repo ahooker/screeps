@@ -1,3 +1,5 @@
+var Traveler = require('Traveler');
+
 var utils = require('creep.utils');
 var extenders = require('util.extenders');
 extenders.extendCreeps();
@@ -19,7 +21,9 @@ profiler.wrap(function() {
     //     console.log(i, ':', BODYPART_COST[i]);
     // }
 
-    delete Memory.lastConstructionUpdate;
+    // console.log('tickLimit:', Game.cpu.tickLimit);
+    // console.log('bucket:', Game.cpu.bucket);
+
     if (Game.time % 300 === 0) {
         console.log('Plotting new roads');
         var paths = utils.expansionPaths();

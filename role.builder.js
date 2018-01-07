@@ -1,5 +1,4 @@
 const profiler = require('screeps-profiler');
-var utils = require('creep.utils');
 
 function run(creep) {
     if (creep.memory.building && creep.carry.energy == 0) {
@@ -30,15 +29,15 @@ function run(creep) {
                 creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
             }
         } else {
-            utils.goToPasture(creep);
+            creep.goToPasture();
         }
     } else {
         if (creep.isFull) {
             creep.memory.building = true;
-        } else if (utils.grabDroppedEnergy(creep)) {
-        } else if (utils.grabEnergy(creep, {includeSources: false, includeContainers: true})) {
+        } else if (creep.grabDroppedEnergy()) {
+        } else if (creep.grabContainerEnergy()) {
         } else {
-            utils.goToPasture(creep);
+            creep.goToPasture();
         }
     }
 }

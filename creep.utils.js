@@ -114,13 +114,7 @@ function howManyCreeps(role) {
         case 'upgrader':
             return 2;
         case 'builder':
-            return 4;
-            var target = Game.spawns['Spawn1'].pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
-            if (target) {
-                return 1;
-            } else {
-                return 0;
-            }
+            return 1 + Math.floor(Game.spawns['Spawn1'].creepsByRole.thief.length/5);
         case 'harvester':
             return 5;
         default:

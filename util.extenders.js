@@ -50,6 +50,18 @@ function extendCreeps() {
         var brain = require('role.' + this.memory.role);
         brain.run(this);
     };
+    Creep.prototype.grabDroppedEnergy = function() {
+        return utils.grabDroppedEnergy(this);
+    };
+    Creep.prototype.grabSourceEnergy = function() {
+        return utils.grabEnergy(this, {includeSources: true, includeContainers: false})
+    };
+    Creep.prototype.grabContainerEnergy = function() {
+        return utils.grabEnergy(this, {includeSources: false, includeContainers: true})
+    };
+    Creep.prototype.goToPasture = function() {
+        return utils.goToPasture(this);
+    };
 }
 
 function extendSources() {

@@ -1,16 +1,15 @@
 const profiler = require('screeps-profiler');
-var utils = require('creep.utils');
 
 function run(creep) {
     if (creep.memory.harvesting) {
         if (creep.isFull) {
             creep.memory.harvesting = false;
         } else {
-            if (utils.grabDroppedEnergy(creep)) {
+            if (creep.grabDroppedEnergy()) {
                 return;
-            } else if (utils.grabEnergy(creep, {includeSources: true, includeContainers: false})) {
+            } else if (creep.grabSourceEnergy()) {
                 return;
-            } else if (utils.grabEnergy(creep, {includeSources: false, includeContainers: true})) {
+            } else if (creep.grabContainerEnergy()) {
                 return;
             } else {
                 creep.memory.harvesting = false;
@@ -62,7 +61,7 @@ function run(creep) {
         }
     } else {
         // Nothing to do so move out of the way for now
-        utils.goToPasture(creep);
+        creep.goToPasture();
         creep.memory.harvesting = true;
     }
 }
