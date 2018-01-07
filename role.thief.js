@@ -151,7 +151,7 @@ function run(creep) {
         }
 
         var targetFlag = Game.flags['EnergyDrop1'];
-        creep.moveTo(targetFlag.pos, {visualizePathStyle: {stroke: '#ffffff'}});
+        creep.moveTo(targetFlag.pos, {reusePath: 30, visualizePathStyle: {stroke: '#ffffff'}});
 
         if (creep.pos.inRangeTo(targetFlag.pos, 2)) {
             // console.log('I am at the drop point!');
@@ -167,7 +167,7 @@ function run(creep) {
             }
 
             if (creep.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
+                creep.moveTo(targets[0], {reusePath: 10, visualizePathStyle: {stroke: '#ffffff'}});
             }
 
             if (creep.carry.energy === 0) {
