@@ -80,6 +80,10 @@ profiler.wrap(function() {
             doSpawn = true;
         }
 
+        if (spawn.totalEnergyAvailable >= 800) {
+            doSpawn = true;
+        }
+
         // var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
         if (!doSpawn && spawn.creepsByRole.harvester.length < 2) {
             // emergency spawn some little harvesters
@@ -93,7 +97,9 @@ profiler.wrap(function() {
             // console.log('Hark, the role:', role);
             if (spawn.creepsByRole[role].length < utils.howManyCreeps(role)) {
                 var newName = _.capitalize(role) + Game.time;
-                var result = spawn.spawnCreep(utils.getCreepBodyParts(role, spawn.totalEnergyAvailable), newName, {memory: {role: role}});
+                var parts = utils.getCreepBodyParts(role, spawn.totalEnergyAvailable);
+                // console.log(JSON.stringify(parts));
+                var result = spawn.spawnCreep(parts, newName, {memory: {role: role}});
                 console.log('Spawning new creep: ' + newName + ' (' + result + ')');
                 Game.creeps[newName].init();
                 return false;
