@@ -147,8 +147,10 @@ module.exports.loop = function () {
         }
     }
 
+    var status = [];
     if (Game.spawns['Spawn1'].spawning) {
         var spawningCreep = Game.creeps[Game.spawns['Spawn1'].spawning.name];
+        status.push('Spawning ' + spawningCreep.memory.role);
         Game.spawns['Spawn1'].room.visual.text(
             'Spawning ' + spawningCreep.memory.role,
             Game.spawns['Spawn1'].pos.x + 2,
@@ -160,6 +162,11 @@ module.exports.loop = function () {
             Game.spawns['Spawn1'].pos.x + 2,
             Game.spawns['Spawn1'].pos.y + 2,
             {align: 'left', opacity: 0.8});
+    }
+    status.push('energyForSpawning: ' + energyForSpawning + " out of possible: " + possibleEnergyForSpawning);
+
+    for (var i in status) {
+        console.log(status[i]);
     }
 
     for (var name in Memory.creeps) {

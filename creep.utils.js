@@ -96,7 +96,7 @@ var creepUtils = {
             case 'wallbreaker':
                 return 0;
             case 'builder':
-                return 2;
+                return 4;
                 var target = Game.spawns['Spawn1'].pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
                 if (target) {
                     return 1;
