@@ -6,7 +6,16 @@ var roleWallbreaker = require('role.wallbreaker');
 var roleThief = require('role.thief');
 var roleSuicider = require('role.suicider');
 
+// Any modules that you use that modify the game's prototypes should be require'd
+// before you require the profiler.
+const profiler = require('screeps-profiler');
+profiler.enable();
+
+// This line monkey patches the global prototypes.
+profiler.enable();
 module.exports.loop = function () {
+profiler.wrap(function() {
+
     // console.log('BPC:');
     // for (var i in BODYPART_COST) {
     //     console.log(i, ':', BODYPART_COST[i]);
@@ -175,4 +184,6 @@ module.exports.loop = function () {
             console.log('Clearing non-existing creep memory:', name);
         }
     }
+});
 }
+
