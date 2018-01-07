@@ -18,6 +18,13 @@ function extendCreeps() {
         enumerable: false,
         configurable: true
     });
+    Object.defineProperty(Creep.prototype, 'isDamaged', {
+        get: function() {
+            return this.hits < this.hitsMax;
+        },
+        enumerable: false,
+        configurable: true
+    });
     Creep.prototype.log = function(message) {
         console.log(this.name + ': ' + message);
     };
@@ -39,7 +46,7 @@ function extendCreeps() {
             return false;
         }
 
-        // console.log('I am a stinker!', this.memory.role);
+        // this.log('I am a stinker!', this.memory.role);
         var brain = require('role.' + this.memory.role);
         brain.run(this);
     };

@@ -97,6 +97,7 @@ profiler.wrap(function() {
                 var result = spawn.spawnCreep(utils.getCreepBodyParts(role, spawn.totalEnergyAvailable), newName, {memory: {role: role}});
                 console.log('Spawning new creep: ' + newName + ' (' + result + ')');
                 Game.creeps[newName].init();
+                return false;
             }
         });
     }
