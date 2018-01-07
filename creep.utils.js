@@ -68,7 +68,9 @@ function expansionPaths() {
     var pathMap = [];
     pathMap.push(['Spawn1', 'Expansion1']);
     pathMap.push(['Spawn1', 'Expansion2']);
+    pathMap.push(['Expansion2', '59bbc5452052a716c3ce93a2']);
     pathMap.push(['Spawn1', 'Expansion3']);
+    pathMap.push(['Expansion3', '59bbc5322052a716c3ce9212']);
     pathMap.push(['Spawn1', 'Expansion4']);
     pathMap.push(['Spawn1', 'Expansion5']);
 
@@ -77,14 +79,18 @@ function expansionPaths() {
         var origin;
         if (pathMap[i][0].startsWith('Spawn')) {
             origin = Game.spawns[pathMap[i][0]].pos;
-        } else {
+        } else if (pathMap[i][0].startsWith('Expansion')) {
             origin = Game.flags[pathMap[i][0]].pos;
+        } else {
+            origin = Game.getObjectById(pathMap[i][0]).pos;
         }
         var goal;
         if (pathMap[i][1].startsWith('Spawn')) {
             goal = Game.spawns[pathMap[i][1]].pos;
-        } else {
+        } else if (pathMap[i][1].startsWith('Expansion')) {
             goal = Game.flags[pathMap[i][1]].pos;
+        } else {
+            goal = Game.getObjectById(pathMap[i][1]).pos;
         }
         expansionPaths.push(PathFinder.search(origin, goal));
     }

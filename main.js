@@ -22,7 +22,9 @@ profiler.wrap(function() {
     // }
 
     // console.log('tickLimit:', Game.cpu.tickLimit);
-    // console.log('bucket:', Game.cpu.bucket);
+    if (Game.cpu.bucket < 10000) {
+        console.log('bucket:', Game.cpu.bucket);
+    }
 
     if (Game.time % 300 === 0) {
         console.log('Plotting new roads');
