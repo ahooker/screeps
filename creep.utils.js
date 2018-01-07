@@ -82,7 +82,10 @@ function expansionPaths() {
         } else if (pathMap[i][0].startsWith('Expansion')) {
             origin = Game.flags[pathMap[i][0]].pos;
         } else {
-            origin = Game.getObjectById(pathMap[i][0]).pos;
+            origin = Game.getObjectById(pathMap[i][0]);
+            if (origin) {
+                origin = origin.pos;
+            }
         }
         var goal;
         if (pathMap[i][1].startsWith('Spawn')) {
@@ -90,9 +93,17 @@ function expansionPaths() {
         } else if (pathMap[i][1].startsWith('Expansion')) {
             goal = Game.flags[pathMap[i][1]].pos;
         } else {
-            goal = Game.getObjectById(pathMap[i][1]).pos;
+            goal = Game.getObjectById(pathMap[i][1]);
+            if (goal) {
+                goal = goal.pos;
+            }
         }
-        expansionPaths.push(PathFinder.search(origin, goal));
+
+        if (origin && goal) {
+            expansionPaths.push(PathFinder.search(origin, goal));
+        } else {
+            console.log('Warning, bad expansionPath:', JSON.stringify(pathMap[i]));
+        }
     }
 
     return expansionPaths;
@@ -114,7 +125,7 @@ function roles() {
 function howManyCreeps(role) {
     switch (role) {
         case 'thief':
-            return 25;
+            return 10;
         case 'wallbreaker':
             return 0;
         case 'upgrader':

@@ -91,7 +91,7 @@ profiler.wrap(function() {
     }
 
     var doSpawn = false;
-    if (!spawn.spawning) {
+    if (!spawn.spawning && Game.time % 5 === 0) {
         if (spawn.totalEnergyAvailable === spawn.totalEnergyPossible) {
             doSpawn = true;
         }
