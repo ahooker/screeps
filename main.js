@@ -4,6 +4,7 @@ var roleUpgrader = require('role.upgrader');
 var roleBuilder = require('role.builder');
 var roleWallbreaker = require('role.wallbreaker');
 var roleThief = require('role.thief');
+var roleSuicider = require('role.suicider');
 
 module.exports.loop = function () {
     // console.log('BPC:');
@@ -11,8 +12,9 @@ module.exports.loop = function () {
     //     console.log(i, ':', BODYPART_COST[i]);
     // }
 
-
-    if (!Memory.lastConstructionUpdate || Memory.lastConstructionUpdate < Game.time - 300) {
+    delete Memory.lastConstructionUpdate;
+    if (Game.time % 300 === 0) {
+        console.log('Plotting new roads');
         var paths = utils.expansionPaths();
         for (var pathIndex in paths) {
             var path = paths[pathIndex];
@@ -25,8 +27,6 @@ module.exports.loop = function () {
                 }
             }
         }
-
-        Memory.lastConstructionUpdate = Game.time;
     }
 
     var tower = Game.getObjectById('5a4e7787e2555e0bfc83e762');
@@ -66,6 +66,8 @@ module.exports.loop = function () {
             roleWallbreaker.run(creep);
         } else if (creep.memory.role == 'thief') {
             roleThief.run(creep);
+        } else if (creep.memory.role == 'suicider') {
+            roleSuicider.run(creep);
         }
     }
 
@@ -95,7 +97,7 @@ module.exports.loop = function () {
 
     if (doSpawn) {
         console.log('Harvesters: ' + harvesters.length);
-        if(harvesters.length < 5) {
+        if(harvesters.length < utils.howManyCreeps('harvester')) {
             var newName = 'Harvester' + Game.time;
             console.log('Spawning new harvester: ' + newName);
             var result = Game.spawns['Spawn1'].spawnCreep(utils.getCreepBodyParts('harvester', energyForSpawning), newName,
@@ -149,14 +151,14 @@ module.exports.loop = function () {
         var spawningCreep = Game.creeps[Game.spawns['Spawn1'].spawning.name];
         Game.spawns['Spawn1'].room.visual.text(
             'Spawning ' + spawningCreep.memory.role,
-            Game.spawns['Spawn1'].pos.x + 1,
-            Game.spawns['Spawn1'].pos.y,
+            Game.spawns['Spawn1'].pos.x + 2,
+            Game.spawns['Spawn1'].pos.y + 2,
             {align: 'left', opacity: 0.8});
     } else {
         Game.spawns['Spawn1'].room.visual.text(
             'energyForSpawning: ' + energyForSpawning + " out of possible: " + possibleEnergyForSpawning,
-            Game.spawns['Spawn1'].pos.x + 1,
-            Game.spawns['Spawn1'].pos.y,
+            Game.spawns['Spawn1'].pos.x + 2,
+            Game.spawns['Spawn1'].pos.y + 2,
             {align: 'left', opacity: 0.8});
     }
 

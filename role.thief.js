@@ -4,6 +4,17 @@ var expansions = utils.expansions();
 
 var roleThief = {
     run: function(creep) {
+        /*
+        var targets = creep.room.find(FIND_STRUCTURES, {
+            filter: (structure) => {
+                return (structure.structureType == STRUCTURE_SPAWN);
+            }
+        });
+        creep.moveTo(targets[0].pos);
+        Game.spawns['Spawn1'].recycleCreep(creep);
+        return;
+        */
+
         if (typeof creep.memory.claimer === 'undefined') {
             var claimer = false;
             for (var i in creep.body) {
@@ -16,29 +27,40 @@ var roleThief = {
         }
 
         if (typeof creep.memory.expansion === 'undefined') {
-            // I want 10
-            var thievesWanted = utils.howManyCreeps('thief');
-
-            // I have 5
-            var thieves = _.sortBy(_.filter(Game.creeps, (creep) => creep.memory.role == 'thief'), t => t.ticksToLive);
+            var thieves = _.sortBy(_.filter(Game.creeps, (creep) => { return creep.memory.role == 'thief' && !creep.memory.claimer} ), t => t.ticksToLive);
+            var claimers = _.sortBy(_.filter(Game.creeps, (creep) => { return creep.memory.role == 'thief' && creep.memory.claimer} ), t => t.ticksToLive);
 
             var expansion = 0;
             var creepsInExpansion = 0;
-            console.log('I have', thieves.length, 'and I want', thievesWanted);
             for (var i in thieves) {
                 thieves[i].memory.expansion = expansions[expansion];
                 creepsInExpansion++;
 
                 // console.log('Thief went into', expansions[expansion]);
-                if (creepsInExpansion == 5) {
+                if (creepsInExpansion == 4) {
                     creepsInExpansion = 0;
                     expansion++;
                 }
+            }
+
+            expansion = 0;
+            for (var i in claimers) {
+                claimers[i].memory.expansion = expansions[expansion++];
+                claimers[i].memory.in_position = false;
             }
         }
 
         if (Game.time % 10 === 0) {
             creep.say(creep.memory.expansion);
+        }
+
+        var closestHostile = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+        if (closestHostile) {
+            creep.say('DIE!');
+            if (creep.attack(closestHostile) === ERR_NOT_IN_RANGE) {
+                creep.moveTo(closestHostile, {visualizePathStyle: {stroke: '#ff0000'}});
+            }
+            return;
         }
 
         if (creep.memory.claimer) {
@@ -81,8 +103,22 @@ var roleThief = {
                 }
 	        }
         } else if (creep.memory.mode == 'returning') {
+            var targets = creep.room.find(FIND_STRUCTURES, {
+                filter: (object) => { return object.hits < object.hitsMax && creep.pos.inRangeTo(object.pos, 2) && object.hits <= 1000 }
+            });
+
+            targets.sort((a,b) => a.hits - b.hits);
+
+            if (targets.length > 0) {
+                // console.log('Thief found a repair target:', JSON.stringify(targets));
+                if (creep.repair(targets[0]) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(targets[0]);
+                }
+                return;
+            }
+
             var constructionSite = creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
-            if (constructionSite && creep.pos.inRangeTo(constructionSite, 5)) {
+            if (constructionSite && creep.pos.inRangeTo(constructionSite, 2)) {
                 if (creep.build(constructionSite) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(constructionSite.pos, {visualizePathStyle: {stroke: '#0000ff'}});
                 }
@@ -90,6 +126,10 @@ var roleThief = {
                     creep.memory.mode = 'venturing';
                 }
                 return;
+            }
+
+            if (creep.carry.energy === 0) {
+                creep.memory.mode = 'venturing';
             }
 
             var targetFlag = Game.flags['EnergyDrop1'];

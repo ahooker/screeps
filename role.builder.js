@@ -12,6 +12,18 @@ var roleBuilder = {
         }
 
         if (creep.memory.building) {
+            var targets = creep.room.find(FIND_STRUCTURES, {
+                filter: (structure) => {
+                    return (structure.structureType == STRUCTURE_SPAWN || structure.structureType == STRUCTURE_EXTENSION) && structure.energy < structure.energyCapacity;
+                }
+            });
+            if (targets.length) {
+                if (creep.transfer(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                    creep.moveTo(targets[0].pos, {visualizePathStyle: {stroke: '#00ff00'}});
+                }
+                return;
+            }
+
             var target = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
             if (target) {
                 if(creep.build(target) == ERR_NOT_IN_RANGE) {
@@ -21,18 +33,13 @@ var roleBuilder = {
                 utils.goToPasture(creep);
             }
         } else {
-	        if (!utils.grabEnergy(creep, {includeSources: false, includeContainers: true})) {
-	            // console.log('Builder could not grabEnergy');
-                if (!utils.grabDroppedEnergy(creep)) {
-                    // console.log('Builder could not grabDroppedEnergy');
-
-                    if (creep.carry.energy > 0) {
-                        creep.memory.building = true;
-                    } else {
-                        utils.goToPasture(creep);
-                    }
-                }
-	        }
+            if (creep.carry.energy === creep.carryCapacity) {
+                creep.memory.building = true;
+            } else if (utils.grabDroppedEnergy(creep)) {
+            } else if (utils.grabEnergy(creep, {includeSources: false, includeContainers: true})) {
+            } else {
+                utils.goToPasture(creep);
+            }
         }
     }
 };
