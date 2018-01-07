@@ -6,7 +6,7 @@ var roleBuilder = {
             creep.memory.building = false;
             creep.say('-> harvest');
         }
-        if (!creep.memory.building && creep.carry.energy == creep.carryCapacity) {
+        if (!creep.memory.building && creep.isFull) {
             creep.memory.building = true;
             creep.say('-> build');
         }
@@ -33,7 +33,7 @@ var roleBuilder = {
                 utils.goToPasture(creep);
             }
         } else {
-            if (creep.carry.energy === creep.carryCapacity) {
+            if (creep.isFull) {
                 creep.memory.building = true;
             } else if (utils.grabDroppedEnergy(creep)) {
             } else if (utils.grabEnergy(creep, {includeSources: false, includeContainers: true})) {

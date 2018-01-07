@@ -3,7 +3,7 @@ var utils = require('creep.utils');
 var roleHarvester = {
     run: function(creep) {
         if (creep.memory.harvesting) {
-            if (creep.carry.energy === creep.carryCapacity) {
+            if (creep.isFull) {
                 creep.memory.harvesting = false;
             } else {
                 if (utils.grabDroppedEnergy(creep)) {

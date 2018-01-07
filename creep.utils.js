@@ -1,3 +1,18 @@
+function extendCreeps() {
+    console.log('start');
+    Object.defineProperty(Creep.prototype, 'isFull', {
+        get: function() {
+            if (!this._isFull) {
+                this._isFull = _.sum(this.carry) === this.carryCapacity;
+            }
+            return this._isFull;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    console.log('end');
+}
+
 function sortCreepBodyParts(parts) {
     // console.log('I want to sort these:', JSON.stringify(parts));
 
@@ -110,7 +125,7 @@ var creepUtils = {
         }
     },
     grabEnergy: function(creep, opts) {
-        if (creep.carry.energy === creep.carryCapacity) {
+        if (creep.isFull) {
             return false;
         }
 
@@ -167,7 +182,7 @@ var creepUtils = {
         return true;
     },
     grabDroppedEnergy: function(creep) {
-        if (creep.carry.energy === creep.carryCapacity) {
+        if (creep.isFull) {
             return false;
         }
 
@@ -285,7 +300,8 @@ var creepUtils = {
         }
 
         return parts;
-    }
+    },
+    extendCreeps: extendCreeps
 };
 
 module.exports = creepUtils;
