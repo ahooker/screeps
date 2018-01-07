@@ -61,10 +61,9 @@ profiler.wrap(function() {
         }
     }
 
-    for (var name in Game.creeps) {
-        var creep = Game.creeps[name];
+    _.forEach(Game.creeps, (creep) => {
         creep.run();
-    }
+    });
 
     var spawn = Game.spawns['Spawn1'];
     if (Game.time % 15 === 0) {
