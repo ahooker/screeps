@@ -105,10 +105,11 @@ var roleThief = {
 
             creep.moveTo(targetFlag.pos, {reusePath: 30});
 
-            if (creep.pos.inRangeTo(targetFlag.pos, 5)) {
-                // console.log('I am at the expansion!', creep.memory.expansion);
-                delete creep.memory.path;
-                creep.memory.mode = 'harvesting';
+            if (Game.time % 5 === 0) {
+                if (creep.pos.inRangeTo(targetFlag.pos, 10)) {
+                    // console.log('I am at the expansion!', creep.memory.expansion);
+                    creep.memory.mode = 'harvesting';
+                }
             }
         } else if (creep.memory.mode == 'harvesting') {
             if (utils.grabDroppedEnergy(creep)) {
@@ -123,7 +124,7 @@ var roleThief = {
 	        }
         } else if (creep.memory.mode == 'returning') {
             var targets = creep.room.find(FIND_STRUCTURES, {
-                filter: (object) => { return object.hits < object.hitsMax && creep.pos.inRangeTo(object.pos, 2) && object.hits <= 1000 }
+                filter: (object) => { return object.hits <= 1000 && object.hits < object.hitsMax && creep.pos.inRangeTo(object.pos, 2) }
             });
 
             targets.sort((a,b) => a.hits - b.hits);
