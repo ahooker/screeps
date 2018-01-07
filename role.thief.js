@@ -101,14 +101,17 @@ var roleThief = {
 
         if (creep.memory.mode == 'venturing') {
             // console.log('Looking for the flag:', creep.memory.expansion);
-            var targetFlag = Game.flags[creep.memory.expansion];
-            creep.moveTo(targetFlag.pos, {visualizePathStyle: {stroke: '#ffffff'}});
+            if (!creep.memory.path) {
+                var targetFlag = Game.flags[creep.memory.expansion];
+                var path = creep.pos.findPathTo(targetFlag.pos);
+                creep.memory.path = creep.room.serializePath(path);
+            }
 
-            var testPos = creep.pos.findPathTo(targetFlag.pos);
-            console.log('testPos:', JSON.stringify(testPos))
+            creep.moveByPath(creep.room.deserializePath(creep.memory.path));
 
             if (creep.pos.inRangeTo(targetFlag.pos, 5)) {
                 // console.log('I am at the expansion!', creep.memory.expansion);
+                delete creep.memory.path;
                 creep.memory.mode = 'harvesting';
             }
         } else if (creep.memory.mode == 'harvesting') {
