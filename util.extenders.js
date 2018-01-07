@@ -111,8 +111,40 @@ function extendSpawns() {
     });
 }
 
+function extendGame() {
+    var memory = {};
+
+    Object.defineProperty(OwnedStructure.prototype, 'creepsByRole', {
+        get: function () {
+            if (memory.creepsByRole) {
+                return memory.creepsByRole;
+            }
+
+            console.log('derp derp');
+            var sortedCreeps = {
+                'harvester': [],
+                'wallbreaker': []
+            };
+
+            for (var creepIndex in Game.creeps) {
+                var role = Game.creeps[creepIndex].memory.role;
+                if (!sortedCreeps[role]) {
+                    // console.log('Role:', role);
+                    sortedCreeps[role] = [];
+                }
+
+                sortedCreeps[role].push(Game.creeps[creepIndex]);
+            }
+            return memory.creepsByRole = sortedCreeps;
+        },
+        enumerable: false,
+        configurable: true
+    });
+}
+
 module.exports = {
     extendCreeps: extendCreeps,
     extendSources: extendSources,
-    extendSpawns: extendSpawns
+    extendSpawns: extendSpawns,
+    extendGame: extendGame
 };

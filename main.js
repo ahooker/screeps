@@ -3,13 +3,7 @@ var extenders = require('util.extenders');
 extenders.extendCreeps();
 extenders.extendSources();
 extenders.extendSpawns();
-
-var roleHarvester = require('role.harvester');
-var roleUpgrader = require('role.upgrader');
-var roleBuilder = require('role.builder');
-var roleWallbreaker = require('role.wallbreaker');
-var roleThief = require('role.thief');
-var roleSuicider = require('role.suicider');
+extenders.extendGame();
 
 // Any modules that you use that modify the game's prototypes should be require'd
 // before you require the profiler.
@@ -67,7 +61,7 @@ profiler.wrap(function() {
         }
     }
 
-    for(var name in Game.creeps) {
+    for (var name in Game.creeps) {
         var creep = Game.creeps[name];
         creep.run();
     }
@@ -78,42 +72,39 @@ profiler.wrap(function() {
         doSpawn = true;
     }
 
-
-    var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-    if (!doSpawn && harvesters.length < 2) {
+    // var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
+    if (!doSpawn && spawn.creepsByRole.harvester.length < 2) {
         doSpawn = true;
     }
 
+    console.log('Harvesters: ' + spawn.creepsByRole.harvester.length);
+    console.log('Upgraders: ' + spawn.creepsByRole.upgrader.length);
+    console.log('Builders: ' + spawn.creepsByRole.builder.length);
+    console.log('Wallbreakers: ' + spawn.creepsByRole.wallbreaker.length);
+    console.log('Thieves: ' + spawn.creepsByRole.thief.length);
     if (doSpawn) {
-        console.log('Harvesters: ' + harvesters.length);
-        if(harvesters.length < utils.howManyCreeps('harvester')) {
+        if (spawn.creepsByRole.harvester.length < utils.howManyCreeps('harvester')) {
             var newName = 'Harvester' + Game.time;
             console.log('Spawning new harvester: ' + newName);
             var result = spawn.spawnCreep(utils.getCreepBodyParts('harvester', spawn.totalEnergyAvailable), newName,
                 {memory: {role: 'harvester'}});
             console.log('The result was: ' + result);
         } else {
-            var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
-            console.log('Upgraders: ' + upgraders.length);
-            if(upgraders.length < 2 ) {
+            if(spawn.creepsByRole.upgrader.length < 2 ) {
                 var newName = 'Upgrader' + Game.time;
                 console.log('Spawning new upgrader: ' + newName);
                 var result = spawn.spawnCreep(utils.getCreepBodyParts('upgrader', spawn.totalEnergyAvailable), newName,
                     {memory: {role: 'upgrader'}});
                 console.log('The result was: ' + result);
             } else {
-                var builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
-                console.log('Builders: ' + builders.length);
-                if(builders.length < utils.howManyCreeps('builder')) {
+                if(spawn.creepsByRole.builder.length < utils.howManyCreeps('builder')) {
                     var newName = 'Builder' + Game.time;
                     console.log('Spawning new builder: ' + newName);
                     var result = spawn.spawnCreep(utils.getCreepBodyParts('builder', spawn.totalEnergyAvailable), newName,
                         {memory: {role: 'builder'}});
                     console.log('The result was: ' + result);
                 } else {
-                    var wallbreakers = _.filter(Game.creeps, (creep) => creep.memory.role == 'wallbreaker');
-                    console.log('Wallbreakers: ' + wallbreakers.length);
-                    if (wallbreakers.length < utils.howManyCreeps('wallbreaker')) {
+                    if (spawn.creepsByRole.wallbreaker.length < utils.howManyCreeps('wallbreaker')) {
                         var newName = 'Wallbreaker' + Game.time;
                         console.log('Spawning new wallbreaker: ' + newName);
                         var result = spawn.spawnCreep(utils.getCreepBodyParts('wallbreaker', spawn.totalEnergyAvailable), newName,
@@ -121,12 +112,10 @@ profiler.wrap(function() {
                         console.log('The result was: ' + result);
                     } else {
                         var thievesWanted = utils.howManyCreeps('thief');
-                        var thieves = _.filter(Game.creeps, (creep) => creep.memory.role == 'thief');
-                        console.log('Thieves: ' + thieves.length);
-                        if (thieves.length < thievesWanted) {
+                        if (spawn.creepsByRole.thief.length < thievesWanted) {
                             var newName = 'Thief' + Game.time;
                             console.log('Spawning new thief: ' + newName);
-                            var result = spawn.spawnCreep(utils.getCreepBodyParts('thief', spawn.totalEnergyAvailable, thieves.length), newName,
+                            var result = spawn.spawnCreep(utils.getCreepBodyParts('thief', spawn.totalEnergyAvailable, spawn.creepsByRole.thief.length), newName,
                                 {memory: {role: 'thief'}});
                             console.log('The result was: ' + result);
                         }
