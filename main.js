@@ -47,11 +47,19 @@ profiler.wrap(function() {
         var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
             filter: (structure) => structure.hits < structure.hitsMax && structure.hits < 1000
         });
+
         if (!closestDamagedStructure) {
-            closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-                filter: (structure) => structure.hits < structure.hitsMax && structure.hitsMax <= 5000
+            var targets = tower.room.find(FIND_STRUCTURES, {
+                filter: (object) => { return object.hits <= 5000 && object.hits < object.hitsMax }
             });
+            if (targets.length) {
+                if (targets.length > 1) {
+                    targets.sort((a,b) => a.hits - b.hits);
+                }
+                closestDamagedStructure = targets[0];
+            }
         }
+
         /*
         if (!closestDamagedStructure) {
             closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
@@ -59,10 +67,12 @@ profiler.wrap(function() {
             });
         }
         */
-        tower.repair(closestDamagedStructure);
+        if (closestDamagedStructure) {
+            tower.repair(closestDamagedStructure);
+        }
 
         var closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
-        if(closestHostile) {
+        if (closestHostile) {
             tower.attack(closestHostile);
         }
     }
