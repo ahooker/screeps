@@ -1,5 +1,8 @@
 var utils = require('creep.utils');
-utils.extendCreeps();
+var extenders = require('util.extenders');
+extenders.extendCreeps();
+extenders.extendSources();
+extenders.extendSpawns();
 
 var roleHarvester = require('role.harvester');
 var roleUpgrader = require('role.upgrader');
@@ -66,36 +69,12 @@ profiler.wrap(function() {
 
     for(var name in Game.creeps) {
         var creep = Game.creeps[name];
-        if (creep.memory.role == 'harvester') {
-            roleHarvester.run(creep);
-        } else if (creep.memory.role == 'upgrader') {
-            roleUpgrader.run(creep);
-        } else if (creep.memory.role == 'builder') {
-            roleBuilder.run(creep);
-        } else if (creep.memory.role == 'wallbreaker') {
-            roleWallbreaker.run(creep);
-        } else if (creep.memory.role == 'thief') {
-            roleThief.run(creep);
-        } else if (creep.memory.role == 'suicider') {
-            roleSuicider.run(creep);
-        }
+        creep.run();
     }
 
-    var energyForSpawning = 0;
-    energyForSpawning += Game.spawns['Spawn1'].energy;
-    var extensions = Game.spawns.Spawn1.room.find(FIND_MY_STRUCTURES, {
-        filter: { structureType: STRUCTURE_EXTENSION }
-    });
-    for (var extension in extensions) {
-        extension = extensions[extension];
-        energyForSpawning += extension.energy;
-    }
-    var possibleEnergyForSpawning = 300;
-    possibleEnergyForSpawning = 300 + (50 * extensions.length)
-    // console.log('energyForSpawning:', energyForSpawning, "out of possible", possibleEnergyForSpawning);
-
+    var spawn = Game.spawns['Spawn1'];
     var doSpawn = false;
-    if (energyForSpawning === possibleEnergyForSpawning) {
+    if (spawn.totalEnergyAvailable === spawn.totalEnergyPossible) {
         doSpawn = true;
     }
 
@@ -110,7 +89,7 @@ profiler.wrap(function() {
         if(harvesters.length < utils.howManyCreeps('harvester')) {
             var newName = 'Harvester' + Game.time;
             console.log('Spawning new harvester: ' + newName);
-            var result = Game.spawns['Spawn1'].spawnCreep(utils.getCreepBodyParts('harvester', energyForSpawning), newName,
+            var result = spawn.spawnCreep(utils.getCreepBodyParts('harvester', spawn.totalEnergyAvailable), newName,
                 {memory: {role: 'harvester'}});
             console.log('The result was: ' + result);
         } else {
@@ -119,7 +98,7 @@ profiler.wrap(function() {
             if(upgraders.length < 2 ) {
                 var newName = 'Upgrader' + Game.time;
                 console.log('Spawning new upgrader: ' + newName);
-                var result = Game.spawns['Spawn1'].spawnCreep(utils.getCreepBodyParts('upgrader', energyForSpawning), newName,
+                var result = spawn.spawnCreep(utils.getCreepBodyParts('upgrader', spawn.totalEnergyAvailable), newName,
                     {memory: {role: 'upgrader'}});
                 console.log('The result was: ' + result);
             } else {
@@ -128,7 +107,7 @@ profiler.wrap(function() {
                 if(builders.length < utils.howManyCreeps('builder')) {
                     var newName = 'Builder' + Game.time;
                     console.log('Spawning new builder: ' + newName);
-                    var result = Game.spawns['Spawn1'].spawnCreep(utils.getCreepBodyParts('builder', energyForSpawning), newName,
+                    var result = spawn.spawnCreep(utils.getCreepBodyParts('builder', spawn.totalEnergyAvailable), newName,
                         {memory: {role: 'builder'}});
                     console.log('The result was: ' + result);
                 } else {
@@ -137,7 +116,7 @@ profiler.wrap(function() {
                     if (wallbreakers.length < utils.howManyCreeps('wallbreaker')) {
                         var newName = 'Wallbreaker' + Game.time;
                         console.log('Spawning new wallbreaker: ' + newName);
-                        var result = Game.spawns['Spawn1'].spawnCreep(utils.getCreepBodyParts('wallbreaker', energyForSpawning), newName,
+                        var result = spawn.spawnCreep(utils.getCreepBodyParts('wallbreaker', spawn.totalEnergyAvailable), newName,
                             {memory: {role: 'wallbreaker'}});
                         console.log('The result was: ' + result);
                     } else {
@@ -147,7 +126,7 @@ profiler.wrap(function() {
                         if (thieves.length < thievesWanted) {
                             var newName = 'Thief' + Game.time;
                             console.log('Spawning new thief: ' + newName);
-                            var result = Game.spawns['Spawn1'].spawnCreep(utils.getCreepBodyParts('thief', energyForSpawning, thieves.length), newName,
+                            var result = spawn.spawnCreep(utils.getCreepBodyParts('thief', spawn.totalEnergyAvailable, thieves.length), newName,
                                 {memory: {role: 'thief'}});
                             console.log('The result was: ' + result);
                         }
@@ -158,22 +137,22 @@ profiler.wrap(function() {
     }
 
     var status = [];
-    if (Game.spawns['Spawn1'].spawning) {
-        var spawningCreep = Game.creeps[Game.spawns['Spawn1'].spawning.name];
+    if (spawn.spawning) {
+        var spawningCreep = Game.creeps[spawn.spawning.name];
         status.push('Spawn1 is actively spawning: ' + spawningCreep.memory.role);
-        Game.spawns['Spawn1'].room.visual.text(
+        spawn.room.visual.text(
             'Spawning ' + spawningCreep.memory.role,
-            Game.spawns['Spawn1'].pos.x + 2,
-            Game.spawns['Spawn1'].pos.y + 2,
+            spawn.pos.x + 2,
+            spawn.pos.y + 2,
             {align: 'left', opacity: 0.8});
     } else {
-        Game.spawns['Spawn1'].room.visual.text(
-            'energyForSpawning: ' + energyForSpawning + " out of possible: " + possibleEnergyForSpawning,
-            Game.spawns['Spawn1'].pos.x + 2,
-            Game.spawns['Spawn1'].pos.y + 2,
+        spawn.room.visual.text(
+            'energyForSpawning: ' + spawn.totalEnergyAvailable + " out of possible: " + spawn.totalEnergyPossible,
+            spawn.pos.x + 2,
+            spawn.pos.y + 2,
             {align: 'left', opacity: 0.8});
     }
-    status.push('energyForSpawning: ' + energyForSpawning + " out of possible: " + possibleEnergyForSpawning);
+    status.push('energyForSpawning: ' + spawn.totalEnergyAvailable + " out of possible: " + spawn.totalEnergyPossible);
 
     for (var i in status) {
         console.log(status[i]);
@@ -187,4 +166,3 @@ profiler.wrap(function() {
     }
 });
 }
-
