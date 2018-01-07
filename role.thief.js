@@ -28,7 +28,7 @@ var roleThief = {
 
         if (typeof creep.memory.expansion === 'undefined') {
             var thieves = _.sortBy(_.filter(Game.creeps, (creep) => { return creep.memory.role == 'thief' && !creep.memory.claimer} ), t => t.ticksToLive);
-            var claimers = _.sortBy(_.filter(Game.creeps, (creep) => { return creep.memory.role == 'thief' && creep.memory.claimer} ), t => t.ticksToLive);
+            var claimers = _.filter(Game.creeps, (creep) => { return creep.memory.role == 'thief' && creep.memory.claimer} );
 
             var expansion = 0;
             var creepsInExpansion = 0;
@@ -43,10 +43,27 @@ var roleThief = {
                 }
             }
 
-            expansion = 0;
-            for (var i in claimers) {
-                claimers[i].memory.expansion = expansions[expansion++];
-                claimers[i].memory.in_position = false;
+            for (var expansionIndex in expansions) {
+                var expansionCovered = false;
+                for (var claimerIndex in claimers) {
+                    if (claimers[claimerIndex].memory.expansion == expansions[expansionIndex]) {
+                        console.log('Expansion', expansions[expansionIndex], 'has a claimer assigned');
+                        expansionCovered = true;
+                        break;
+                    }
+                }
+
+                if (!expansionCovered) {
+                    console.log('Expansion', expansions[expansionIndex], 'had no claimer assigned!');
+                    for (var claimerIndex in claimers) {
+                        if (!claimers[claimerIndex].memory.expansion) {
+                            claimers[claimerIndex].memory.expansion = expansions[expansionIndex];
+                            claimers[claimerIndex].memory.in_position = false;
+                            console.log('But now it does!', claimers[claimerIndex].name);
+                            break;
+                        }
+                    }
+                }
             }
         }
 

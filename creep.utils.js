@@ -92,7 +92,7 @@ var creepUtils = {
     howManyCreeps: function(role) {
         switch (role) {
             case 'thief':
-                return 26;
+                return 25;
             case 'wallbreaker':
                 return 0;
             case 'builder':
