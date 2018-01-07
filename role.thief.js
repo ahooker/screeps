@@ -104,6 +104,9 @@ var roleThief = {
             var targetFlag = Game.flags[creep.memory.expansion];
             creep.moveTo(targetFlag.pos, {visualizePathStyle: {stroke: '#ffffff'}});
 
+            var testPos = creep.pos.findPathTo(targetFlag.pos);
+            console.log('testPos:', JSON.stringify(testPos))
+
             if (creep.pos.inRangeTo(targetFlag.pos, 5)) {
                 // console.log('I am at the expansion!', creep.memory.expansion);
                 creep.memory.mode = 'harvesting';
