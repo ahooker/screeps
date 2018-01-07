@@ -150,7 +150,7 @@ module.exports.loop = function () {
     var status = [];
     if (Game.spawns['Spawn1'].spawning) {
         var spawningCreep = Game.creeps[Game.spawns['Spawn1'].spawning.name];
-        status.push('Spawning ' + spawningCreep.memory.role);
+        status.push('Spawn1 is actively spawning: ' + spawningCreep.memory.role);
         Game.spawns['Spawn1'].room.visual.text(
             'Spawning ' + spawningCreep.memory.role,
             Game.spawns['Spawn1'].pos.x + 2,
