@@ -21,7 +21,7 @@ api.memory.get()
 api.me().then((user)=>console.log(user))
 
 api.socket.connect()
-api.socket.subscribe('cpu',(event)=>console.log('cpu',event.data))
+//api.socket.subscribe('cpu',(event)=>console.log('cpu',event.data))
 api.socket.subscribe('console', (event)=>{
     if (event.data.error) {
         console.log(event.data.error);

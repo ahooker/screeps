@@ -228,6 +228,9 @@ function goToPasture(creep) {
 }
 
 function getCreepBodyParts(role, maxEnergy, howManyAlready) {
+    if (maxEnergy > 800) {
+        maxEnergy = 800;
+    }
     console.log('maxEnergy:', maxEnergy);
 
     if (role == 'wallbreaker') {
