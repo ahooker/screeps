@@ -9,7 +9,6 @@ var roleSuicider = require('role.suicider');
 // Any modules that you use that modify the game's prototypes should be require'd
 // before you require the profiler.
 const profiler = require('screeps-profiler');
-profiler.enable();
 
 // This line monkey patches the global prototypes.
 profiler.enable();
