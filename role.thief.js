@@ -104,10 +104,10 @@ var roleThief = {
             if (!creep.memory.path) {
                 var targetFlag = Game.flags[creep.memory.expansion];
                 var path = creep.pos.findPathTo(targetFlag.pos);
-                creep.memory.path = creep.room.serializePath(path);
+                creep.memory.path = Room.serializePath(path);
             }
 
-            creep.moveByPath(creep.room.deserializePath(creep.memory.path));
+            creep.moveByPath(Room.deserializePath(creep.memory.path));
 
             if (creep.pos.inRangeTo(targetFlag.pos, 5)) {
                 // console.log('I am at the expansion!', creep.memory.expansion);
