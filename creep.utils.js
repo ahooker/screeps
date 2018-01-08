@@ -167,7 +167,9 @@ function grabEnergy(creep, opts) {
     }
 
     if (targets.length > 0) {
-        targets = _.sortBy(targets, s => creep.pos.getRangeTo(s));
+        if (targets.length > 1) {
+            targets = _.sortBy(targets, s => creep.pos.getRangeTo(s));
+        }
 
         if(creep.withdraw(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
             creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffaa00'}});
@@ -177,8 +179,28 @@ function grabEnergy(creep, opts) {
         }
     } else {
         if (opts.includeSources) {
-            var source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+            var sources = creep.room.find(FIND_SOURCES, { filter: (source) => {
+                if (!source.freeSpaceReserved) {
+                    source.freeSpaceReserved = 0;
+                }
+                return source.freeSpaceReserved < source.freeSpaceCount;
+            }});
+
+            var source = false;
+            if (sources.length > 0) {
+                if (sources.length > 1) {
+                    sources = _.sortBy(sources, s => creep.pos.getRangeTo(s));
+                }
+                source = sources[0];
+                source.freeSpaceReserved++;
+            }
+
+            // var source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+
             if (source) {
+                // console.log('Source has free spaces:', source.freeSpaceCount);
+                // console.log('Source has reserved spaces:', source.freeSpaceReserved);
+
                 if(creep.harvest(source) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(source, {visualizePathStyle: {stroke: '#ffaa00'}});
                     if (Game.time % 15 === 0) {

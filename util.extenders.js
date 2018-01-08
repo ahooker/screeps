@@ -168,7 +168,7 @@ function extendGame() {
 
                 sortedCreeps[role].push(Game.creeps[creepIndex]);
             }
-            console.log('Creep stats:', JSON.stringify(sortedCreeps));
+            // console.log('Creep stats:', JSON.stringify(sortedCreeps));
             return this._creepsByRole = sortedCreeps;
         },
         enumerable: false,
