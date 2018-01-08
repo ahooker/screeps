@@ -61,6 +61,7 @@ function sortCreepBodyParts(parts) {
 }
 
 function expansions() {
+    return ['Expansion1', 'Expansion2'];
     return ['Expansion1', 'Expansion2', 'Expansion3', 'Expansion4', 'Expansion5'];
 }
 
@@ -69,10 +70,12 @@ function expansionPaths() {
     pathMap.push(['Spawn1', 'Expansion1']);
     pathMap.push(['Spawn1', 'Expansion2']);
     pathMap.push(['Expansion2', '59bbc5452052a716c3ce93a2']);
+    /*
     pathMap.push(['Spawn1', 'Expansion3']);
     pathMap.push(['Expansion3', '59bbc5322052a716c3ce9212']);
     pathMap.push(['Spawn1', 'Expansion4']);
     pathMap.push(['Spawn1', 'Expansion5']);
+    */
 
     var expansionPaths = [];
     for (var i in pathMap) {
