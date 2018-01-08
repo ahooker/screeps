@@ -134,7 +134,12 @@ function howManyCreeps(role) {
         case 'upgrader':
             return 2;
         case 'builder':
-            return 1 + Math.floor(Game.spawns['Spawn1'].creepsByRole.thief.length/5);
+            var builders = 1 + Math.floor(Game.spawns['Spawn1'].creepsByRole.thief.length/5);
+            if (builders <= 3) {
+                return builders;
+            } else {
+                return 3;
+            }
         case 'harvester':
             return 5;
         default:
