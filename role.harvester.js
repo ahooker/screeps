@@ -64,6 +64,10 @@ function run(creep) {
         creep.goToPasture();
         creep.memory.harvesting = true;
     }
+
+    if (creep.carry.energy < 50) {
+        creep.memory.harvesting = true;
+    }
 }
 
 var roleHarvester = {

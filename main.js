@@ -91,17 +91,20 @@ profiler.wrap(function() {
     }
 
     var doSpawn = false;
-    if (!spawn.spawning && Game.time % 5 === 0) {
+    if (!spawn.spawning) {
+        /*
         if (spawn.totalEnergyAvailable === spawn.totalEnergyPossible) {
             doSpawn = true;
         }
+        */
 
         if (spawn.totalEnergyAvailable >= 800) {
             doSpawn = true;
         }
 
+        console.log('Length:', spawn.creepsByRole.harvester.length);
         // var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-        if (!doSpawn && spawn.creepsByRole.harvester.length < 2) {
+        if (!doSpawn && spawn.creepsByRole.harvester.length < 3) {
             // emergency spawn some little harvesters
             doSpawn = true;
         }
@@ -117,7 +120,9 @@ profiler.wrap(function() {
                 // console.log(JSON.stringify(parts));
                 var result = spawn.spawnCreep(parts, newName, {memory: {role: role}});
                 console.log('Spawning new creep: ' + newName + ' (' + result + ')');
-                Game.creeps[newName].init();
+                if (result === 0) {
+                    Game.creeps[newName].init();
+                }
                 return false;
             }
         });

@@ -43,10 +43,11 @@ function extendCreeps() {
     };
     Creep.prototype.run = function() {
         if (!this.memory.role) {
+            console.log('Wat, no role');
             return false;
         }
 
-        // this.log('I am a stinker!', this.memory.role);
+        // this.log('I am a stinker! ' + this.memory.role);
         var brain = require('role.' + this.memory.role);
         brain.run(this);
     };
@@ -54,10 +55,10 @@ function extendCreeps() {
         return utils.grabDroppedEnergy(this);
     };
     Creep.prototype.grabSourceEnergy = function() {
-        return utils.grabEnergy(this, {includeSources: true, includeContainers: false})
+        return utils.grabEnergy(this, {includeSources: true, includeContainers: false});
     };
     Creep.prototype.grabContainerEnergy = function() {
-        return utils.grabEnergy(this, {includeSources: false, includeContainers: true})
+        return utils.grabEnergy(this, {includeSources: false, includeContainers: true});
     };
     Creep.prototype.goToPasture = function() {
         return utils.goToPasture(this);
@@ -146,12 +147,10 @@ function extendSpawns() {
 }
 
 function extendGame() {
-    var memory = {};
-
     Object.defineProperty(OwnedStructure.prototype, 'creepsByRole', {
         get: function () {
-            if (memory.creepsByRole) {
-                return memory.creepsByRole;
+            if (this._creepsByRole) {
+                return this._creepsByRole;
             }
 
             var sortedCreeps = {};
@@ -169,7 +168,8 @@ function extendGame() {
 
                 sortedCreeps[role].push(Game.creeps[creepIndex]);
             }
-            return memory.creepsByRole = sortedCreeps;
+            console.log('Creep stats:', JSON.stringify(sortedCreeps));
+            return this._creepsByRole = sortedCreeps;
         },
         enumerable: false,
         configurable: true

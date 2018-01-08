@@ -1,7 +1,16 @@
 const profiler = require('screeps-profiler');
 
+function getBodyCost(parts) {
+    var cost = 0;
+    _.forEach(parts, (part) => {
+        cost += BODYPART_COST[part];
+    });
+    return cost;
+}
+
 function sortCreepBodyParts(parts) {
     // console.log('I want to sort these:', JSON.stringify(parts));
+    console.log('FYI, body cost sorted is:', getBodyCost(parts));
 
     var sortedParts = {};
     for (var i in parts) {
@@ -61,7 +70,6 @@ function sortCreepBodyParts(parts) {
 }
 
 function expansions() {
-    return ['Expansion1', 'Expansion2'];
     return ['Expansion1', 'Expansion2', 'Expansion3', 'Expansion4', 'Expansion5'];
 }
 
@@ -70,12 +78,10 @@ function expansionPaths() {
     pathMap.push(['Spawn1', 'Expansion1']);
     pathMap.push(['Spawn1', 'Expansion2']);
     pathMap.push(['Expansion2', '59bbc5452052a716c3ce93a2']);
-    /*
     pathMap.push(['Spawn1', 'Expansion3']);
     pathMap.push(['Expansion3', '59bbc5322052a716c3ce9212']);
     pathMap.push(['Spawn1', 'Expansion4']);
     pathMap.push(['Spawn1', 'Expansion5']);
-    */
 
     var expansionPaths = [];
     for (var i in pathMap) {
@@ -134,12 +140,7 @@ function howManyCreeps(role) {
         case 'upgrader':
             return 2;
         case 'builder':
-            var builders = 1 + Math.floor(Game.spawns['Spawn1'].creepsByRole.thief.length/5);
-            if (builders <= 3) {
-                return builders;
-            } else {
-                return 3;
-            }
+            return 1 + Math.floor(Game.spawns['Spawn1'].creepsByRole.thief.length/5);
         case 'harvester':
             return 5;
         default:
@@ -236,10 +237,14 @@ function goToPasture(creep) {
 }
 
 function getCreepBodyParts(role, maxEnergy, howManyAlready) {
+    console.log('maxEnergy:', maxEnergy);
+    if (Game.spawns['Spawn1'].creepsByRole.harvester.length < 3) {
+        return sortCreepBodyParts([WORK, CARRY, MOVE]);
+    }
+
     if (maxEnergy > 800) {
         maxEnergy = 800;
     }
-    console.log('maxEnergy:', maxEnergy);
 
     if (role == 'wallbreaker') {
         var parts = [];
