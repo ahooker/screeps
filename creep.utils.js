@@ -70,11 +70,14 @@ function sortCreepBodyParts(parts) {
 }
 
 function expansions() {
-    return ['Expansion1', 'Expansion2', 'Expansion3', 'Expansion4', 'Expansion5'];
+    return ['Expansion1']; // , 'Expansion2', 'Expansion3', 'Expansion4', 'Expansion5'];
 }
 
 function expansionPaths() {
     var pathMap = [];
+    pathMap.push(['Spawn1', '5bbcabd89099fc012e6345d7']); // Source 1
+    pathMap.push(['Spawn1', '5bbcabd89099fc012e6345d9']); // Source 2
+    /*
     pathMap.push(['Spawn1', 'Expansion1']);
     pathMap.push(['Spawn1', 'Expansion2']);
     pathMap.push(['Expansion2', '59bbc5452052a716c3ce93a2']);
@@ -82,7 +85,8 @@ function expansionPaths() {
     pathMap.push(['Expansion3', '59bbc5322052a716c3ce9212']);
     pathMap.push(['Spawn1', 'Expansion4']);
     pathMap.push(['Spawn1', 'Expansion5']);
-
+    */
+    
     var expansionPaths = [];
     for (var i in pathMap) {
         var origin;
@@ -131,17 +135,27 @@ function roles() {
     ];
 }
 
-function howManyCreeps(role) {
+function howManyCreeps(role, totalEnergyPossible) {
     switch (role) {
         case 'thief':
-            return 10;
+            return 0;
         case 'wallbreaker':
             return 0;
         case 'upgrader':
+            return 1;
             return 2;
         case 'builder':
+            return 3;
             return 1 + Math.floor(Game.spawns['Spawn1'].creepsByRole.thief.length/5);
         case 'harvester':
+            if (!Game.spawns['Spawn1'].creepsByRole.upgrader.length) {
+                return 2;
+            }
+            return 2;
+
+            if (totalEnergyPossible < 500) {
+                return Math.floor(totalEnergyPossible / 100);
+            }
             return 5;
         default:
             return 0;
@@ -203,21 +217,32 @@ function grabEnergy(creep, opts) {
 
                 if(creep.harvest(source) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(source, {visualizePathStyle: {stroke: '#ffaa00'}});
+                    /*
                     if (Game.time % 15 === 0) {
                         creep.say('Hungry!');
                     }
+                    */
                 }
             } else {
+                /*
                 if (Game.time % 15 === 0) {
                     creep.say('SO HUNGRY!');
                 }
-                var targets = [Game.flags['CreepPasture'].pos, Game.flags['CreepPasture2'].pos];
+                */
+               return creep.goToPasture();
+               var targets = [Game.flags['CreepPasture'].pos, Game.flags['CreepPasture2'].pos];
                 targets = _.sortBy(targets, s => creep.pos.getRangeTo(s));
                 creep.moveTo(targets[0].pos, {visualizePathStyle: {stroke: '#ffffff'}});
                 return false;
             }
         } else {
             // Nothing to do so move out of the way for now
+            return creep.goToPasture();
+            if (!Game.flags['CreepPasture'] || !Game.flags['CreepPasture2']) {
+                creep.say('No pasture..');
+                return false;
+            }
+
             var targets = [Game.flags['CreepPasture'].pos, Game.flags['CreepPasture2'].pos];
             targets = _.sortBy(targets, s => creep.pos.getRangeTo(s));
             creep.moveTo(targets[0].pos, {visualizePathStyle: {stroke: '#ffffff'}});
@@ -233,11 +258,12 @@ function grabDroppedEnergy(creep) {
         return false;
     }
 
-    var droppedEnergy = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {
+    var droppedEnergy;
+    droppedEnergy = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {
         filter: (d) => {return (d.resourceType == RESOURCE_ENERGY)}
     });
     if (droppedEnergy) {
-        // console.log('I found some dropped energy!', droppedEnergy);
+        console.log('I found some dropped energy!', droppedEnergy);
         if (creep.pickup(droppedEnergy) == ERR_NOT_IN_RANGE) {
             creep.moveTo(droppedEnergy.pos, {visualizePathStyle: {stroke: '#ffffff'}});
         }
@@ -260,9 +286,20 @@ function goToPasture(creep) {
 
 function getCreepBodyParts(role, maxEnergy, howManyAlready) {
     console.log('maxEnergy:', maxEnergy);
-    if (Game.spawns['Spawn1'].creepsByRole.harvester.length < 3) {
+    if (role == 'harvester' && Game.spawns['Spawn1'].creepsByRole.harvester.length < 2) {
+        return sortCreepBodyParts([WORK, WORK, CARRY, MOVE]);
         return sortCreepBodyParts([WORK, CARRY, MOVE]);
     }
+
+    // Hack in a simple structure for baby mode
+	if (maxEnergy <= 300) {
+        if (role == 'upgrader') {
+            return sortCreepBodyParts([WORK, WORK, CARRY, MOVE]);
+        } else {
+            return sortCreepBodyParts([WORK, WORK, CARRY, MOVE]);
+            return sortCreepBodyParts([WORK, CARRY, MOVE]);
+        }
+	}
 
     if (maxEnergy > 800) {
         maxEnergy = 800;
@@ -350,10 +387,10 @@ var creepUtils = {
     expansions: expansions,
     expansionPaths: expansionPaths,
     howManyCreeps: howManyCreeps,
-    grabEnergy: profiler.registerFN(grabEnergy, 'grabEnergy'),
-    grabDroppedEnergy: profiler.registerFN(grabDroppedEnergy, 'grabDroppedEnergy'),
-    goToPasture: profiler.registerFN(goToPasture, 'goToPasture'),
-    getCreepBodyParts: profiler.registerFN(getCreepBodyParts, 'getCreepBodyParts')
+    grabEnergy: grabEnergy,
+    grabDroppedEnergy: grabDroppedEnergy,
+    goToPasture: goToPasture,
+    getCreepBodyParts: getCreepBodyParts
 };
 
 module.exports = creepUtils;

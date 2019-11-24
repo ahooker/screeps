@@ -20,22 +20,28 @@ function run(creep) {
     var builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
     var targets = [];
 
+    /*
     if (builders.length === 0) {
         targets = creep.room.find(FIND_STRUCTURES, {
             filter: (structure) => {
                 return (structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_SPAWN) && structure.energy < structure.energyCapacity;
             }
         });
-    ///*
     } else {
         targets = creep.room.find(FIND_STRUCTURES, {
             filter: (structure) => {
                 return (structure.structureType == STRUCTURE_EXTENSION) && structure.energy < structure.energyCapacity;
             }
         });
-    //*/
     }
+    */
 
+    targets = creep.room.find(FIND_STRUCTURES, {
+        filter: (structure) => {
+            return (structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_SPAWN) && structure.energy < structure.energyCapacity;
+        }
+    });
+    
     if (targets.length === 0) {
         targets = creep.room.find(FIND_STRUCTURES, {
             filter: (structure) => {

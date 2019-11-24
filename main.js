@@ -12,7 +12,7 @@ extenders.extendGame();
 const profiler = require('screeps-profiler');
 
 // This line monkey patches the global prototypes.
-profiler.enable();
+// profiler.enable();
 module.exports.loop = function () {
 profiler.wrap(function() {
 
@@ -25,7 +25,7 @@ profiler.wrap(function() {
     if (Game.cpu.bucket < 10000) {
         console.log('bucket:', Game.cpu.bucket);
     }
-
+	
     if (Game.time % 300 === 0) {
         console.log('Plotting new roads');
         var paths = utils.expansionPaths();
@@ -43,7 +43,7 @@ profiler.wrap(function() {
     }
 
     var tower = Game.getObjectById('5a4e7787e2555e0bfc83e762');
-    if(tower) {
+    if (tower) {
         var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
             filter: (structure) => structure.hits < structure.hitsMax && structure.hits < 1000
         });
@@ -92,17 +92,13 @@ profiler.wrap(function() {
 
     var doSpawn = false;
     if (!spawn.spawning) {
-        /*
-        if (spawn.totalEnergyAvailable === spawn.totalEnergyPossible) {
+        if (spawn.totalEnergyAvailable < 800 && spawn.totalEnergyAvailable === spawn.totalEnergyPossible) {
             doSpawn = true;
-        }
-        */
-
-        if (spawn.totalEnergyAvailable >= 800) {
+        } else if (spawn.totalEnergyAvailable >= 800) {
             doSpawn = true;
         }
 
-        console.log('Length:', spawn.creepsByRole.harvester.length);
+        // console.log('Length:', spawn.creepsByRole.harvester.length);
         // var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
         if (!doSpawn && spawn.creepsByRole.harvester.length < 3) {
             // emergency spawn some little harvesters
@@ -114,7 +110,7 @@ profiler.wrap(function() {
         var roles = utils.roles();
         _.forEach(utils.roles(), (role) => {
             // console.log('Hark, the role:', role);
-            if (spawn.creepsByRole[role].length < utils.howManyCreeps(role)) {
+            if (spawn.creepsByRole[role].length < utils.howManyCreeps(role, spawn.totalEnergyPossible)) {
                 var newName = _.capitalize(role) + Game.time;
                 var parts = utils.getCreepBodyParts(role, spawn.totalEnergyAvailable);
                 // console.log(JSON.stringify(parts));

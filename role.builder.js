@@ -11,7 +11,31 @@ function run(creep) {
     }
 
     if (creep.memory.building) {
-        var targets = creep.room.find(FIND_STRUCTURES, {
+        var target, targets;
+
+        // Prioritize building any extensions
+        target = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES, {
+            filter: (structure) => {
+                return (structure.structureType == STRUCTURE_EXTENSION)
+            }
+        });
+        // Then any containers
+        if (!target) {
+            target = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES, {
+                filter: (structure) => {
+                    return (structure.structureType == STRUCTURE_CONTAINER)
+                }
+            });
+        }
+        if (target) {
+            if(creep.build(target) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+            }
+            return;
+        }
+
+        // Then play surrogate harvester, for some reason?
+        targets = creep.room.find(FIND_STRUCTURES, {
             filter: (structure) => {
                 return (structure.structureType == STRUCTURE_SPAWN || structure.structureType == STRUCTURE_EXTENSION) && structure.energy < structure.energyCapacity;
             }
@@ -23,7 +47,8 @@ function run(creep) {
             return;
         }
 
-        var target = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+        // After that, any construction sites go
+        target = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
         if (target) {
             if(creep.build(target) == ERR_NOT_IN_RANGE) {
                 creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
@@ -36,6 +61,7 @@ function run(creep) {
             creep.memory.building = true;
         } else if (creep.grabDroppedEnergy()) {
         } else if (creep.grabContainerEnergy()) {
+        } else if (creep.grabSourceEnergy()) {
         } else {
             creep.goToPasture();
         }
