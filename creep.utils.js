@@ -154,12 +154,12 @@ function howManyCreeps(role, totalEnergyPossible) {
                 totalEnergy += container.store.getUsedCapacity(RESOURCE_ENERGY);
             });
 
-            console.log('totalEnergy', totalEnergy, 'maxEnergy', maxEnergy, 'pct', totalEnergy/maxEnergy*100);
             // If our containers are at over 75% capacity, we can probably use more builders
             if (totalEnergy > maxEnergy*0.75) {
                 builders = 10;
             }
 
+            console.log('totalEnergy', totalEnergy, 'maxEnergy', maxEnergy, 'pct', totalEnergy/maxEnergy*100, 'builders requested', builders);
             return builders;
             return 1 + Math.floor(Game.spawns['Spawn1'].creepsByRole.thief.length/5);
         case 'harvester':
@@ -263,7 +263,7 @@ function grabDroppedEnergy(creep) {
 
     var droppedEnergy;
 
-    targets = creep.room.find(FIND_TOMBSTONES, { filter: (structure) => { console.log(structure, structure.store.energy); return (structure.store.energy > 0) } });
+    targets = creep.room.find(FIND_TOMBSTONES, { filter: (structure) => { return (structure.store.energy > 0) } });
     if (targets.length > 0) {
         var storage = targets[0];
         if (creep.withdraw(storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {

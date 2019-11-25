@@ -40,12 +40,19 @@ profiler.wrap(function() {
         }
     }
 
-    var tower = Game.getObjectById('5a4e7787e2555e0bfc83e762');
+    var tower = Game.getObjectById('5ddb3e333304f42047dd63e1');
     if (tower) {
         var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
             filter: (structure) => structure.hits < structure.hitsMax && structure.hits < 1000
         });
 
+        if (!closestDamagedStructure) {
+            closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
+                filter: (structure) => structure.hits < structure.hitsMax && structure.hits < 5000
+            });
+        }
+
+        /*
         if (!closestDamagedStructure) {
             var targets = tower.room.find(FIND_STRUCTURES, {
                 filter: (object) => { return object.hits <= 5000 && object.hits < object.hitsMax }
@@ -57,6 +64,7 @@ profiler.wrap(function() {
                 closestDamagedStructure = targets[0];
             }
         }
+        */
 
         /*
         if (!closestDamagedStructure) {

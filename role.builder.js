@@ -29,18 +29,21 @@ function run(creep) {
             return;
         }
     
-        // Prioritize delivering energy
-        targets = creep.room.find(FIND_STRUCTURES, {
+        // Prioritize delivering energy to spawn & extensions
+        target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
             filter: (structure) => {
                 return (structure.structureType == STRUCTURE_SPAWN || structure.structureType == STRUCTURE_EXTENSION) && structure.energy < structure.energyCapacity;
             }
         });
-        if (targets.length) {
-            if (creep.transfer(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                creep.moveTo(targets[0].pos, {visualizePathStyle: {stroke: '#00ff00'}});
+        
+        if (target) {
+            if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                creep.moveTo(target.pos, {visualizePathStyle: {stroke: '#00ff00'}});
             }
             return;
         }
+
+
 
         // Then prioritize building any extensions
         target = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES, {
@@ -60,6 +63,20 @@ function run(creep) {
         if (target) {
             if (creep.build(target) == ERR_NOT_IN_RANGE) {
                 creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+            }
+            return;
+        }
+
+        // Now, top up any towers
+        target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+            filter: (structure) => {
+                return (structure.structureType == STRUCTURE_TOWER) && structure.energy < structure.energyCapacity;
+            }
+        });
+        
+        if (target) {
+            if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                creep.moveTo(target.pos, {visualizePathStyle: {stroke: '#00ff00'}});
             }
             return;
         }
