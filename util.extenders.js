@@ -3,6 +3,7 @@ var utils = require('creep.utils');
 var roleHarvester = require('role.harvester');
 var roleUpgrader = require('role.upgrader');
 var roleBuilder = require('role.builder');
+var roleDefender = require('role.defender');
 var roleWallbreaker = require('role.wallbreaker');
 var roleThief = require('role.thief');
 var roleSuicider = require('role.suicider');

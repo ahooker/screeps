@@ -1,5 +1,3 @@
-var Traveler = require('Traveler');
-
 var utils = require('creep.utils');
 var extenders = require('util.extenders');
 extenders.extendCreeps();
@@ -100,11 +98,16 @@ profiler.wrap(function() {
 
         // console.log('Length:', spawn.creepsByRole.harvester.length);
         // var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-        if (!doSpawn && spawn.creepsByRole.harvester.length < 3) {
+        if (!doSpawn && spawn.creepsByRole.harvester.length < 2) {
             // emergency spawn some little harvesters
             doSpawn = true;
         }
     }
+
+    /*
+    var parts = utils.getCreepBodyParts('harvester', 400);
+    console.log(JSON.stringify(parts));
+    */
 
     if (doSpawn) {
         var roles = utils.roles();

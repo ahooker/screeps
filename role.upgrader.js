@@ -12,10 +12,13 @@ function run(creep) {
     }
 
     if (creep.memory.upgrading) {
+        // creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#ffaa00'}});
         if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
             creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#ffaa00'}});
         }
-    } else if (!utils.grabEnergy(creep, {includeSources: true, includeContainers: true})) {
+    } else if (creep.grabDroppedEnergy()) {
+    } else if (creep.grabContainerEnergy()) {
+    } else {
         creep.memory.upgrading = true;
     }
 }

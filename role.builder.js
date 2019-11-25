@@ -3,38 +3,33 @@ const profiler = require('screeps-profiler');
 function run(creep) {
     if (creep.memory.building && creep.carry.energy == 0) {
         creep.memory.building = false;
-        creep.say('-> harvest');
+        // creep.say('-> harvest');
     }
     if (!creep.memory.building && creep.isFull) {
         creep.memory.building = true;
         creep.say('-> build');
     }
 
+    // Building means we're on a full energy load (or remainder of one)
     if (creep.memory.building) {
         var target, targets;
 
-        // Prioritize building any extensions
-        target = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES, {
-            filter: (structure) => {
-                return (structure.structureType == STRUCTURE_EXTENSION)
-            }
+        // First off, check for any repairable structures in range and go deal with those
+        targets = creep.room.find(FIND_STRUCTURES, {
+            filter: (object) => { return object.hits < 5000 && object.hits < object.hitsMax && creep.pos.inRangeTo(object.pos, 2) }
         });
-        // Then any containers
-        if (!target) {
-            target = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES, {
-                filter: (structure) => {
-                    return (structure.structureType == STRUCTURE_CONTAINER)
-                }
-            });
-        }
-        if (target) {
-            if(creep.build(target) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+    
+        targets.sort((a,b) => a.hits - b.hits);
+    
+        if (targets.length > 0) {
+            // console.log('Builder found a repair target:', JSON.stringify(targets));
+            if (creep.repair(targets[0]) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(targets[0]);
             }
             return;
         }
-
-        // Then play surrogate harvester, for some reason?
+    
+        // Prioritize delivering energy
         targets = creep.room.find(FIND_STRUCTURES, {
             filter: (structure) => {
                 return (structure.structureType == STRUCTURE_SPAWN || structure.structureType == STRUCTURE_EXTENSION) && structure.energy < structure.energyCapacity;
@@ -47,7 +42,29 @@ function run(creep) {
             return;
         }
 
-        // After that, any construction sites go
+        // Then prioritize building any extensions
+        target = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES, {
+            filter: (structure) => {
+                return (structure.structureType == STRUCTURE_EXTENSION)
+            }
+        });
+
+        // Then any containers
+        if (!target) {
+            target = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES, {
+                filter: (structure) => {
+                    return (structure.structureType == STRUCTURE_CONTAINER)
+                }
+            });
+        }
+        if (target) {
+            if (creep.build(target) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
+            }
+            return;
+        }
+
+        // After that, any other construction sites go
         target = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
         if (target) {
             if(creep.build(target) == ERR_NOT_IN_RANGE) {
@@ -56,12 +73,12 @@ function run(creep) {
         } else {
             creep.goToPasture();
         }
-    } else {
+    } else { // if creep.memory.building
         if (creep.isFull) {
             creep.memory.building = true;
         } else if (creep.grabDroppedEnergy()) {
         } else if (creep.grabContainerEnergy()) {
-        } else if (creep.grabSourceEnergy()) {
+        // } else if (creep.grabSourceEnergy()) {
         } else {
             creep.goToPasture();
         }

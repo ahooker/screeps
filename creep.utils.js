@@ -127,11 +127,12 @@ function roles() {
         'harvester',
         'upgrader',
         'builder',
-        'thief',
-        'wallbreaker',
-        'wounded',
-        'suicider',
-        'medic'
+        'defender',
+        // 'thief',
+        // 'wallbreaker',
+        // 'wounded',
+        // 'suicider',
+        // 'medic'
     ];
 }
 
@@ -142,16 +143,31 @@ function howManyCreeps(role, totalEnergyPossible) {
         case 'wallbreaker':
             return 0;
         case 'upgrader':
-            return 1;
             return 2;
         case 'builder':
-            return 3;
+            var builders = 2;
+
+            var containers = Game.rooms[Game.spawns['Spawn1'].room.name].find(FIND_STRUCTURES, { filter: (structure) => { return (structure.structureType == STRUCTURE_CONTAINER) } });
+            var totalEnergy=0, maxEnergy=0;
+            _.forEach(containers, (container) => {
+                maxEnergy += container.store.getCapacity(RESOURCE_ENERGY);
+                totalEnergy += container.store.getUsedCapacity(RESOURCE_ENERGY);
+            });
+
+            console.log('totalEnergy', totalEnergy, 'maxEnergy', maxEnergy, 'pct', totalEnergy/maxEnergy*100);
+            // If our containers are at over 75% capacity, we can probably use more builders
+            if (totalEnergy > maxEnergy*0.75) {
+                builders = 10;
+            }
+
+            return builders;
             return 1 + Math.floor(Game.spawns['Spawn1'].creepsByRole.thief.length/5);
         case 'harvester':
             if (!Game.spawns['Spawn1'].creepsByRole.upgrader.length) {
+                console.log('There are no upgraders, so only requesting 2 harvesters for now')
                 return 2;
             }
-            return 2;
+            return 4;
 
             if (totalEnergyPossible < 500) {
                 return Math.floor(totalEnergyPossible / 100);
@@ -185,7 +201,7 @@ function grabEnergy(creep, opts) {
             targets = _.sortBy(targets, s => creep.pos.getRangeTo(s));
         }
 
-        if(creep.withdraw(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+        if (creep.withdraw(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
             creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffaa00'}});
             if (Game.time % 15 === 0) {
                 creep.say('Hungry!');
@@ -230,23 +246,10 @@ function grabEnergy(creep, opts) {
                 }
                 */
                return creep.goToPasture();
-               var targets = [Game.flags['CreepPasture'].pos, Game.flags['CreepPasture2'].pos];
-                targets = _.sortBy(targets, s => creep.pos.getRangeTo(s));
-                creep.moveTo(targets[0].pos, {visualizePathStyle: {stroke: '#ffffff'}});
-                return false;
             }
         } else {
             // Nothing to do so move out of the way for now
             return creep.goToPasture();
-            if (!Game.flags['CreepPasture'] || !Game.flags['CreepPasture2']) {
-                creep.say('No pasture..');
-                return false;
-            }
-
-            var targets = [Game.flags['CreepPasture'].pos, Game.flags['CreepPasture2'].pos];
-            targets = _.sortBy(targets, s => creep.pos.getRangeTo(s));
-            creep.moveTo(targets[0].pos, {visualizePathStyle: {stroke: '#ffffff'}});
-            return false;
         }
     }
 
@@ -259,11 +262,20 @@ function grabDroppedEnergy(creep) {
     }
 
     var droppedEnergy;
+
+    targets = creep.room.find(FIND_TOMBSTONES, { filter: (structure) => { console.log(structure, structure.store.energy); return (structure.store.energy > 0) } });
+    if (targets.length > 0) {
+        var storage = targets[0];
+        if (creep.withdraw(storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(storage);
+        }
+    }
+
     droppedEnergy = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {
         filter: (d) => {return (d.resourceType == RESOURCE_ENERGY)}
     });
     if (droppedEnergy) {
-        console.log('I found some dropped energy!', droppedEnergy);
+        // console.log('I found some dropped energy!', droppedEnergy);
         if (creep.pickup(droppedEnergy) == ERR_NOT_IN_RANGE) {
             creep.moveTo(droppedEnergy.pos, {visualizePathStyle: {stroke: '#ffffff'}});
         }
@@ -280,16 +292,22 @@ function goToPasture(creep) {
     });
 
     if (target) {
+        creep.say('Zzz');
         creep.moveTo(target.pos, {visualizePathStyle: {stroke: '#00ff00'}});
+    } else {
+        creep.say('Zzz?');
     }
 }
 
 function getCreepBodyParts(role, maxEnergy, howManyAlready) {
     console.log('maxEnergy:', maxEnergy);
+    // Early game may need this back
+    /*
     if (role == 'harvester' && Game.spawns['Spawn1'].creepsByRole.harvester.length < 2) {
         return sortCreepBodyParts([WORK, WORK, CARRY, MOVE]);
         return sortCreepBodyParts([WORK, CARRY, MOVE]);
     }
+    */
 
     // Hack in a simple structure for baby mode
 	if (maxEnergy <= 300) {
@@ -300,6 +318,17 @@ function getCreepBodyParts(role, maxEnergy, howManyAlready) {
             return sortCreepBodyParts([WORK, CARRY, MOVE]);
         }
 	}
+
+    if (role == 'harvester' || role == 'upgrader') {
+        // On a map where upgraders need to travel, this won't work so well
+        var parts = [CARRY, MOVE];
+        maxEnergy -= BODYPART_COST[CARRY] + BODYPART_COST[MOVE];
+        while (maxEnergy >= BODYPART_COST[WORK]) {
+            parts.push(WORK);
+            maxEnergy -= BODYPART_COST[WORK];
+        }
+        return parts;
+    }
 
     if (maxEnergy > 800) {
         maxEnergy = 800;
